@@ -1,4 +1,4 @@
-FROM debian:bookworm-slim
+FROM node:bookworm-slim
 
 # update list of available packages
 RUN apt update 

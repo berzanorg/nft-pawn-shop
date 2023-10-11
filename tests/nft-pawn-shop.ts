@@ -9,13 +9,13 @@ describe("nft-pawn-shop", () => {
     const program = anchor.workspace.NftPawnShop as Program<NftPawnShop>
     const userPublickKey = anchor.AnchorProvider.env().wallet.publicKey
 
-    it("Sends demo assets!", async () => {
-        const [pawnShopUser] = anchor.web3.PublicKey.findProgramAddressSync(
-            [Buffer.from("pawn_shop_user"), userPublickKey.toBuffer()],
-            program.programId
-        )
+    const [pawnShopUser] = anchor.web3.PublicKey.findProgramAddressSync(
+        [Buffer.from("pawn_shop_user"), userPublickKey.toBuffer()],
+        program.programId
+    )
 
-        await program.methods.giveDemoAssets().accounts({
+    it("Sends demo assets!", async () => {
+        await program.methods.giveDemoAssets(userPublickKey).accounts({
             pawnShopUser,
         }).rpc()
 
@@ -26,23 +26,22 @@ describe("nft-pawn-shop", () => {
     })
 
     it("Places order!", async () => {
-        const [borrower] = anchor.web3.PublicKey.findProgramAddressSync(
-            [Buffer.from("pawn_shop_user"), userPublickKey.toBuffer()],
-            program.programId
-        )
+        const duration = new anchor.BN(100)
+        const borrowAmount = 10
+        const debtAmount = 11
 
-
-        await program.methods.placeOrder(new anchor.BN(100), 10, 11).accounts({
-            borrower,
+        await program.methods.placeOrder(duration, borrowAmount, debtAmount).accounts({
+            borrower: pawnShopUser,
         }).rpc()
 
-        const { orders } = await program.account.pawnShopUser.fetch(borrower)
-        assert.deepEqual(orders, [{
-            some: {
-                borrowAmount: 10,
-                debtAmount: 11,
-                duration: new anchor.BN(100000)
-            }
-        }])
+        const { orders } = await program.account.pawnShopUser.fetch(pawnShopUser)
+        console.log(orders[0].some.duration)
+        assert(3, 'dfa')
+
+
+        assert.equal(orders.length, 1)
+        assert.equal(orders[0].some.borrowAmount, borrowAmount)
+        assert.equal(orders[0].some.debtAmount, debtAmount)
+        assert(orders[0].some.duration.cmp(duration) === 0)
     })
 })

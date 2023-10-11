@@ -36,12 +36,23 @@ describe("nft-pawn-shop", () => {
 
         const { orders } = await program.account.pawnShopUser.fetch(pawnShopUser)
         console.log(orders[0].some.duration)
-        assert(3, 'dfa')
 
 
         assert.equal(orders.length, 1)
         assert.equal(orders[0].some.borrowAmount, borrowAmount)
         assert.equal(orders[0].some.debtAmount, debtAmount)
         assert(orders[0].some.duration.cmp(duration) === 0)
+    })
+
+    it("Cancels order!", async () => {
+        const orderIndex = 0
+
+        await program.methods.cancelOrder(orderIndex).accounts({
+            borrower: pawnShopUser,
+        }).rpc()
+
+        const { orders } = await program.account.pawnShopUser.fetch(pawnShopUser)
+
+        assert(orders[0].none)
     })
 })

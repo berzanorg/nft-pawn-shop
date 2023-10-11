@@ -27,10 +27,7 @@ pub mod nft_pawn_shop {
         let signer_pubkey = ctx.accounts.signer.key();
         let user_borrower = &mut ctx.accounts.borrower;
 
-        require!(
-            signer_pubkey == user_borrower.key(),
-            CustomError::UnauthorizedAccess
-        );
+        //todo: require owner of `user_borrower` PDA matches with `signer_pubkey`.
 
         require!(user_borrower.demo_nfts > 0, CustomError::NoDemoNFT);
 
@@ -49,10 +46,7 @@ pub mod nft_pawn_shop {
         let signer_pubkey = ctx.accounts.signer.key();
         let user_borrower = &mut ctx.accounts.borrower;
 
-        require!(
-            signer_pubkey == user_borrower.key(),
-            CustomError::UnauthorizedAccess
-        );
+        //todo: require owner of `user_borrower` PDA matches with `signer_pubkey`.
 
         let order = user_borrower
             .orders
@@ -71,10 +65,7 @@ pub mod nft_pawn_shop {
         let user_borrower = &mut ctx.accounts.borrower;
         let user_lender = &mut ctx.accounts.lender;
 
-        require!(
-            signer_pubkey == user_lender.key(),
-            CustomError::UnauthorizedAccess
-        );
+        //todo: require owner of `user_lender` PDA matches with `signer_pubkey`.
 
         let (borrow_amount, debt_amount, duration) =
             match user_borrower.orders.get(order_index as usize) {
@@ -121,10 +112,7 @@ pub mod nft_pawn_shop {
         let user_borrower = &mut ctx.accounts.borrower;
         let user_lender = &mut ctx.accounts.lender;
 
-        require!(
-            signer_pubkey == user_borrower.key(),
-            CustomError::UnauthorizedAccess
-        );
+        //todo: require owner of `user_borrower` PDA matches with `signer_pubkey`.
 
         let (amount, deadline, lender_pubkey) = match user_borrower.debts.get(debt_index as usize) {
             Some(Debt::Some {
@@ -149,7 +137,7 @@ pub mod nft_pawn_shop {
             CustomError::DebtPaymentDeadlineIsOver
         );
 
-        require!(lender_pubkey == user_lender.key(), CustomError::WrongLender);
+        //todo: require owner of `user_lender` PDA matches with `lender_pubkey``.
 
         user_borrower.demo_tokens -= amount;
         user_lender.demo_tokens += amount;
@@ -171,10 +159,7 @@ pub mod nft_pawn_shop {
         let user_borrower = &mut ctx.accounts.borrower;
         let user_lender = &mut ctx.accounts.lender;
 
-        require!(
-            signer_pubkey == user_lender.key(),
-            CustomError::UnauthorizedAccess
-        );
+        //todo: require owner of `user_lender` PDA matches with `signer_pubkey`.
 
         let (_, deadline, lender_pubkey) = match user_borrower.debts.get(debt_index as usize) {
             Some(Debt::Some {

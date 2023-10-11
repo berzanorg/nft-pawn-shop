@@ -1,0 +1,88 @@
+
+[
+    {
+        "id": 1,
+        "slug": "pixel-kit-thinking-inside-the-box-for-a-change",
+        "image": "01.jpg",        
+        "category": "Bitcoin",
+        "title": "Pixel Kit: thinking inside the box for a change",
+        "author" : "Bruno Texira",
+        "authordeg" : "Lead Product Owner",
+        "authorImg": "avatar.jpg",
+        "publishedDate": "August 9, 2022",
+        "description": "Repellendus quasi sapiente dolorem veniam corporis cumque laboriosam nisi eaque earum, soluta ex nemo rerum velit. consequatur amet aliquam nesciunt nemo, deserunt facilis."
+    },
+    {
+        "id": 2,
+        "slug": "minimal-workspace-for-insperation",
+        "image": "02.jpg",        
+        "category": "Artwork",
+        "title": "Minimal workspace for insperation",
+        "author" : "Bruno Texira",
+        "authordeg" : "Lead Product Owner",
+        "authorImg": "avatar.jpg",
+        "publishedDate": "August 9, 2022",
+        "description": "Lorem ipsum, dolor sit amet consectetur adipisicing elit. Soluta recusandae neque porro ut quisquam."
+    },
+    {
+        "id": 3,
+        "slug": "delbo-x-diplo-to-release-nft-for-justice-charity",
+        "image": "03.jpg",        
+        "category": "Bitcoin",
+        "title": "Delbo x Diplo to release NFT for Justice Charity",
+        "author" : "Bruno Texira",
+        "authordeg" : "Lead Product Owner",
+        "authorImg": "avatar.jpg",
+        "publishedDate": "August 9, 2022",
+        "description": "Lorem ipsum, dolor sit amet consectetur adipisicing elit. Soluta recusandae neque porro ut quisquam."
+    },
+    {
+        "id": 4,
+        "slug": "morning-routine-to-boost-your-mood",
+        "image": "04.jpg",        
+        "category": "Currency",
+        "title": "Morning routine to boost your mood",
+        "author" : "Bruno Texira",
+        "authordeg" : "Lead Product Owner",
+        "authorImg": "avatar.jpg",
+        "publishedDate": "August 9, 2022",
+        "description": "Lorem ipsum, dolor sit amet consectetur adipisicing elit. Soluta recusandae neque porro ut quisquam."
+    },
+    {
+        "id": 5,
+        "slug": "what-does-the-nft-ecosystem-look-like-after-the-boom",
+        "image": "05.jpg",        
+        "category": "Blockchain",
+        "title": "What does the NFT Ecosystem look like after the Boom?",
+        "author" : "Bruno Texira",
+        "authordeg" : "Lead Product Owner",
+        "authorImg": "avatar.jpg",
+        "publishedDate": "August 9, 2022",
+        "description": "Lorem ipsum, dolor sit amet consectetur adipisicing elit. Soluta recusandae neque porro ut quisquam."
+    },
+    {
+        "id": 6,
+        "slug": "how-to-use-sticky-note-for-probleme-solving",
+        "image": "06.jpg",        
+        "category": "Product",
+        "title": "How to use sticky note for probleme solving",
+        "author" : "Bruno Texira",
+        "authordeg" : "Lead Product Owner",
+        "authorImg": "avatar.jpg",
+        "publishedDate": "August 9, 2022",
+        "description": "Lorem ipsum, dolor sit amet consectetur adipisicing elit. Soluta recusandae neque porro ut quisquam."
+    },
+    {
+        "id": 7,
+        "slug": "wash-trading-and-safe-trading-practices-guide",
+        "image": "07.jpg",        
+        "category": "Product",
+        "title": "Wash Trading and safe trading practices guide",
+        "author" : "Bruno Texira",
+        "authordeg" : "Lead Product Owner",
+        "authorImg": "avatar.jpg",
+        "publishedDate": "August 9, 2022",
+        "description": "Lorem ipsum, dolor sit amet consectetur adipisicing elit. Soluta recusandae neque porro ut quisquam."
+    }
+
+]

@@ -1,0 +1,39 @@
+[
+    {
+        "image": "artworks/*.{jpg,webp,png}",
+        "resize": {
+            "width": 450
+        }
+    },
+    {
+        "image": "artworks/*.gif",
+        "resize": {
+            "width": 275
+        }
+    },
+    {
+        "image": "users/*",
+        "resize": {
+            "width": 80,
+            "height": 80
+        }
+    },
+    {
+        "image": "demo/hero*",
+        "resize": {
+            "width": 1920
+        }
+    },
+    {
+        "image": "demo/home-*",
+        "resize": {
+            "width": 580
+        }
+    },
+    {
+        "image": "demo/*",
+        "resize": {
+            "width": 380
+        }
+    }
+]

@@ -1,0 +1,84 @@
+/* Import: Syne */
+@font-face {
+    font-family: "Syne";
+    src: local("Syne Bold"),
+         url('../fonts/syne/Syne-Bold.woff2'),
+         url('../fonts/syne/Syne-Bold.woff');
+    font-weight: 700;
+    text-rendering: optimizeLegibility;
+    font-display: swap;
+}
+
+/* Import: Stolzl */
+@font-face {
+    font-family: "Stolzl";
+    src: local("Stolzl Book"),
+         url('../fonts/stolzl/Stolzl-Book.woff2'),
+         url('../fonts/stolzl/Stolzl-Book.woff');
+    font-weight: 400;
+    text-rendering: optimizeLegibility;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Stolzl";
+    src: local("Stolzl Bold"),
+         url('../fonts/stolzl/Stolzl-Bold.woff2'),
+         url('../fonts/stolzl/Stolzl-Bold.woff');
+    font-weight: 700;
+    text-rendering: optimizeLegibility;
+    font-display: swap;
+}
+
+/* Import: Stolzl Display */
+@font-face {
+    font-family: "Stolzl Display";
+    src: local("Stolzl Display Regular"),
+         url('../fonts/stolzl/StolzlDisplay-Regular.woff2'),
+         url('../fonts/stolzl/StolzlDisplay-Regular.woff');
+    font-weight: 400;
+    text-rendering: optimizeLegibility;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Stolzl Display";
+    src: local("Stolzl Display Bold"),
+         url('../fonts/stolzl/StolzlDisplay-Bold.woff2'),
+         url('../fonts/stolzl/StolzlDisplay-Bold.woff');
+    font-weight: 700;
+    text-rendering: optimizeLegibility;
+    font-display: swap;
+}
+
+/* Import: Power Grotesk */
+@font-face {
+    font-family: "Power Grotesk";
+    src: local("Power Grotesk UltraBold"),
+         url('../fonts/power-grotesk/PowerGrotesk-UltraBold.woff2'),
+         url('../fonts/power-grotesk/PowerGrotesk-UltraBold.woff');
+    font-weight: 700;
+    text-rendering: optimizeLegibility;
+    font-display: swap;
+}
+
+/* Import: Mabry Pro */
+@font-face {
+    font-family: "Mabry Pro";
+    src: local("Mabry Pro Regular"),
+         url('../fonts/mabry-pro/MabryPro-Regular.woff2'),
+         url('../fonts/mabry-pro/MabryPro-Regular.woff');
+    font-weight: 400;
+    text-rendering: optimizeLegibility;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Mabry Pro";
+    src: local("Mabry Pro Bold"),
+         url('../fonts/mabry-pro/MabryPro-Bold.woff2'),
+         url('../fonts/mabry-pro/MabryPro-Bold.woff');
+    font-weight: 700;
+    text-rendering: optimizeLegibility;
+    font-display: swap;
+}

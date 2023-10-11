@@ -1,41 +1,48 @@
-import * as anchor from "@coral-xyz/anchor";
-import { Program } from "@coral-xyz/anchor";
-import { NftPawnShop } from "../target/types/nft_pawn_shop";
-import { assert } from "chai";
+import * as anchor from "@coral-xyz/anchor"
+import { Program } from "@coral-xyz/anchor"
+import { NftPawnShop } from "../target/types/nft_pawn_shop"
+import { assert } from "chai"
 
 describe("nft-pawn-shop", () => {
-    anchor.setProvider(anchor.AnchorProvider.env());
+    anchor.setProvider(anchor.AnchorProvider.env())
 
-    const program = anchor.workspace.NftPawnShop as Program<NftPawnShop>;
-    const ownerPublicKey = anchor.AnchorProvider.env().wallet.publicKey;
+    const program = anchor.workspace.NftPawnShop as Program<NftPawnShop>
+    const userPublickKey = anchor.AnchorProvider.env().wallet.publicKey
 
-    const [demoNftCounter] = anchor.web3.PublicKey.findProgramAddressSync(
-        [Buffer.from("demo_nft_counter"), ownerPublicKey.toBuffer()],
-        program.programId
-    )
-
-    it("Initializes demo NFT counter!", async () => {
-        await program.methods.initializeDemoNftCounter().accounts({
-            demoNftCounter
-        }).rpc();
-    });
-
-
-    it("Sends demo NFTs!", async () => {
+    it("Sends demo assets!", async () => {
         const [pawnShopUser] = anchor.web3.PublicKey.findProgramAddressSync(
-            [Buffer.from("pawn_shop_user"), ownerPublicKey.toBuffer()],
+            [Buffer.from("pawn_shop_user"), userPublickKey.toBuffer()],
             program.programId
         )
 
-        await program.methods.sendDemoNft().accounts({
-            demoNftCounter,
+        await program.methods.giveDemoAssets().accounts({
             pawnShopUser,
         }).rpc()
 
-        const { demoNfts } = await program.account.pawnShopUser.fetch(pawnShopUser)
-        assert.deepEqual(demoNfts, [0, 1])
+        const { demoNfts, demoTokens } = await program.account.pawnShopUser.fetch(pawnShopUser)
 
-        const { count } = await program.account.demoNftCounter.fetch(demoNftCounter)
-        assert.equal(count, 2)
-    });
-});
+        assert.deepEqual(demoNfts, 1)
+        assert.deepEqual(demoTokens, 100)
+    })
+
+    it("Places order!", async () => {
+        const [borrower] = anchor.web3.PublicKey.findProgramAddressSync(
+            [Buffer.from("pawn_shop_user"), userPublickKey.toBuffer()],
+            program.programId
+        )
+
+
+        await program.methods.placeOrder(new anchor.BN(100), 10, 11).accounts({
+            borrower,
+        }).rpc()
+
+        const { orders } = await program.account.pawnShopUser.fetch(borrower)
+        assert.deepEqual(orders, [{
+            some: {
+                borrowAmount: 10,
+                debtAmount: 11,
+                duration: new anchor.BN(100000)
+            }
+        }])
+    })
+})

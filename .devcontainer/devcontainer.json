@@ -8,7 +8,8 @@
                 "rust-lang.rust-analyzer",
                 "tamasfe.even-better-toml",
                 "bradlc.vscode-tailwindcss",
-                "heybourn.headwind"
+                "heybourn.headwind",
+                "stivo.tailwind-fold"
             ],
             "settings": {
                 "terminal.integrated.shellIntegration.decorationsEnabled": "never"

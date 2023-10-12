@@ -6,7 +6,9 @@
         "vscode": {
             "extensions": [
                 "rust-lang.rust-analyzer",
-                "tamasfe.even-better-toml"
+                "tamasfe.even-better-toml",
+                "bradlc.vscode-tailwindcss",
+                "heybourn.headwind"
             ],
             "settings": {
                 "terminal.integrated.shellIntegration.decorationsEnabled": "never"

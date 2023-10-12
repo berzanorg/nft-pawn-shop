@@ -1,4 +1,3 @@
-import { Navbar } from '@/components/Navbar'
 import { Html, Head, Main, NextScript } from 'next/document'
 
 export default function Document() {
@@ -7,8 +6,7 @@ export default function Document() {
       <Head>
         <link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&display=swap" rel="stylesheet" />
       </Head>
-      <body className="font-['Onest',sans-serif]">
-        <Navbar/>
+      <body>
         <Main />
         <NextScript />
       </body>

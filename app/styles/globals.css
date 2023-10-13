@@ -1,3 +1,17 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+body {
+    @apply font-['Onest',sans-serif] bg-slate-900 text-white;
+    
+    -webkit-tap-highlight-color: transparent;
+}
+
+#__next {
+    @apply flex flex-col
+}
+
+* {
+    outline: none;
+}

@@ -3,16 +3,17 @@ use anchor_lang::prelude::*;
 mod errors;
 use errors::CustomError;
 
-declare_id!("57zehjVnRxbydc814CBWQcuL3iw8J9zm1RPAEUbvKrRG");
+declare_id!("52sADXgNGPisU3pAtfHZhJ6j7s9j48rs4Pin4JMbF2W9");
 
 #[program]
 pub mod nft_pawn_shop {
     use super::*;
 
-    pub fn give_demo_assets(ctx: Context<GiveDemoAssets>, owner: Pubkey) -> Result<()> {
+    pub fn get_demo_assets(ctx: Context<GetDemoAssets>) -> Result<()> {
         let user = &mut ctx.accounts.pawn_shop_user;
+        let signer_pubkey = ctx.accounts.signer.key();
 
-        user.owner = owner;
+        user.owner = signer_pubkey;
 
         user.demo_nfts += 1;
         user.demo_tokens += 100;
@@ -36,6 +37,7 @@ pub mod nft_pawn_shop {
         );
 
         require!(user_borrower.demo_nfts > 0, CustomError::NoDemoNFT);
+        user_borrower.demo_nfts -= 1;
 
         let order = Order::Some {
             duration,
@@ -105,7 +107,7 @@ pub mod nft_pawn_shop {
 
         let debt = Debt::Some {
             amount: debt_amount,
-            lender_pubkey: user_lender.key(),
+            lender_pda: user_lender.key(),
             deadline: Clock::get()?.unix_timestamp + (duration as i64),
         };
 
@@ -132,16 +134,12 @@ pub mod nft_pawn_shop {
             CustomError::UnauthorizedAccess
         );
 
-        let (amount, deadline, lender_pubkey) = match user_borrower.debts.get(debt_index as usize) {
+        let (amount, deadline, lender_pda) = match user_borrower.debts.get(debt_index as usize) {
             Some(Debt::Some {
                 amount,
                 deadline,
-                lender_pubkey,
-            }) => (
-                amount.to_owned(),
-                deadline.to_owned(),
-                lender_pubkey.to_owned(),
-            ),
+                lender_pda,
+            }) => (amount.to_owned(), deadline.to_owned(), lender_pda.key()),
             _ => return err!(CustomError::NoOrderFound),
         };
 
@@ -155,8 +153,8 @@ pub mod nft_pawn_shop {
             CustomError::DebtPaymentDeadlineIsOver
         );
 
-        // require owner of `user_lender` PDA is equal to `lender_pubkey`.
-        require!(user_lender.owner == lender_pubkey, CustomError::WrongLender);
+        // require `user_lender.key()` is equal to `lender_pda`.
+        require!(user_lender.key() == lender_pda, CustomError::WrongLender);
 
         user_borrower.demo_tokens -= amount;
         user_lender.demo_tokens += amount;
@@ -184,25 +182,25 @@ pub mod nft_pawn_shop {
             CustomError::UnauthorizedAccess
         );
 
-        let (_, deadline, lender_pubkey) = match user_borrower.debts.get(debt_index as usize) {
+        let (_, deadline, lender_pda) = match user_borrower.debts.get(debt_index as usize) {
             Some(Debt::Some {
                 amount,
                 deadline,
-                lender_pubkey,
+                lender_pda,
             }) => (
                 amount.to_owned(),
                 deadline.to_owned(),
-                lender_pubkey.to_owned(),
+                lender_pda.to_owned(),
             ),
             _ => return err!(CustomError::NoOrderFound),
         };
 
+        require!(lender_pda == user_lender.key(), CustomError::WrongLender);
+
         require!(
-            deadline < Clock::get()?.unix_timestamp,
+            deadline <= Clock::get()?.unix_timestamp,
             CustomError::DebtPaymentDeadlineIsValid
         );
-
-        require!(lender_pubkey == user_lender.key(), CustomError::WrongLender);
 
         let debt = user_borrower
             .debts
@@ -264,7 +262,7 @@ pub struct PlaceOrder<'info> {
 }
 
 #[derive(Accounts)]
-pub struct GiveDemoAssets<'info> {
+pub struct GetDemoAssets<'info> {
     #[account(
         init,
         payer = signer,
@@ -276,13 +274,6 @@ pub struct GiveDemoAssets<'info> {
     #[account(mut)]
     pub signer: Signer<'info>,
     pub system_program: Program<'info, System>,
-}
-
-/// It represents the demo nft counter which is needed to keep track of demo NFTs given.
-#[account]
-#[derive(InitSpace)]
-pub struct DemoNFTCounter {
-    count: u16,
 }
 
 /// It represents an account that uses NFT Pawn Shop.
@@ -327,8 +318,8 @@ pub enum Debt {
     Some {
         /// Amount of debt to be repaid.
         amount: u16,
-        /// Address of the lender.
-        lender_pubkey: Pubkey,
+        /// PDA of the lender.
+        lender_pda: Pubkey,
         /// Debt payment deadline as timestamp.
         deadline: i64,
     },

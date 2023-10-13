@@ -77,15 +77,15 @@ export const DappProvider = ({ children }: { children: ReactNode }) => {
 
     const { publicKey, signAllTransactions, signTransaction } = useWallet()
 
-    useEffect(() => {
-        (window as any).x = async () => {
-            const provider = new AnchorProvider(connection, {} as any, AnchorProvider.defaultOptions())
-            const programToFetch = new Program(idl as unknown as NftPawnShop, idl.metadata.address, provider)
-            const x = await programToFetch.account.pawnShopUser.all()
-                ; (window as any).y = x;
-            setProgramData(x)
-        }
+    const fetchProgramData = useCallback(async () => {
+        const provider = new AnchorProvider(connection, {} as any, AnchorProvider.defaultOptions())
+        const programToFetch = new Program(idl as unknown as NftPawnShop, idl.metadata.address, provider)
+        setProgramData(await programToFetch.account.pawnShopUser.all())
     }, [connection])
+
+    useEffect(() => {
+        fetchProgramData()
+    }, [fetchProgramData])
 
     const pda = useMemo(() => {
         if (!publicKey) return null
@@ -201,6 +201,8 @@ export const DappProvider = ({ children }: { children: ReactNode }) => {
         await program.methods.placeOrder(new BN(durationAsSeconds), borrowAmount, debtAmount)
             .accounts({ borrower: pda })
             .rpc()
+
+        fetchProgramData()
     }, [program, pda])
 
     const cancelOrder = useCallback(async (orderIndex: number) => {
@@ -209,6 +211,8 @@ export const DappProvider = ({ children }: { children: ReactNode }) => {
         await program.methods.cancelOrder(orderIndex)
             .accounts({ borrower: pda })
             .rpc()
+
+        fetchProgramData()
     }, [program, pda])
 
 
@@ -218,6 +222,8 @@ export const DappProvider = ({ children }: { children: ReactNode }) => {
         await program.methods.executeOrder(orderIndex)
             .accounts({ borrower: borrowerPda, lender: pda })
             .rpc()
+
+        fetchProgramData()
     }, [program, pda])
 
 
@@ -227,6 +233,9 @@ export const DappProvider = ({ children }: { children: ReactNode }) => {
         await program.methods.payDebt(debtIndex)
             .accounts({ borrower: pda, lender: lenderPda })
             .rpc()
+
+
+        fetchProgramData()
     }, [program, pda])
 
     const seize = useCallback(async (debtIndex: number, borrowerPda: PublicKey) => {
@@ -235,6 +244,9 @@ export const DappProvider = ({ children }: { children: ReactNode }) => {
         await program.methods.seize(debtIndex)
             .accounts({ borrower: borrowerPda, lender: pda })
             .rpc()
+
+
+        fetchProgramData()
     }, [program, pda])
 
     return (

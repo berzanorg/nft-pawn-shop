@@ -1,0 +1,43 @@
+.wallet-adapter-button.wallet-adapter-button-trigger {
+    @apply px-5 text-lg font-semibold duration-200 h-10 bg-sky-500 hover:bg-sky-400 rounded-2xl hover:scale-95 active:scale-90
+}
+
+.wallet-adapter-modal {   
+    @apply fixed w-full max-w-md sm:max-w-max px-4 -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2 
+}
+
+.wallet-adapter-modal-wrapper {
+    @apply flex flex-col py-4 gap-2 bg-slate-800 border-slate-600 border rounded-2xl
+}
+
+.wallet-adapter-modal-button-close {
+    @apply self-end fill-slate-400 p-3 mr-4 duration-200  rounded-full hover:bg-slate-700 border border-slate-600
+}
+
+.wallet-adapter-modal-title {
+    @apply px-5 text-lg sm:text-xl font-bold 
+}
+
+.wallet-adapter-modal-list {
+    @apply flex flex-col  min-w-fit gap-px
+}
+
+li .wallet-adapter-button  {
+    @apply flex items-center gap-4 text-lg h-14 hover:bg-slate-700 w-full px-5 font-semibold duration-200 min-w-fit
+}
+
+.wallet-adapter-button-start-icon img {
+    @apply h-10 w-10 min-w-[2.5rem]
+}
+
+.wallet-adapter-button  span {
+    @apply w-full text-end text-base font-medium text-slate-500
+}
+
+.wallet-adapter-modal-list-more {
+    @apply flex items-center justify-center gap-2 font-medium fill-white
+}
+
+.wallet-adapter-modal-list-more-icon-rotate {
+    @apply rotate-180
+}

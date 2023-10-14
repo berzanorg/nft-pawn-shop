@@ -15,9 +15,8 @@ We used [Anchor](https://www.anchor-lang.com/) framework to develop the smart co
 We used [Next.js](https://nextjs.org/) to develop the web interface. <br>
 We used [TailwindCSS](https://tailwindcss.com/) to rapidly style the website without ever leaving HTML.
 
-
-[//]: # ( ### Who Are The Team Members? )
-[//]: # ( Emre: blablablablablablablablablablablablablablabla <br> )
-[//]: # ( Zayn: The youngest in the team but the oldest in the meme game. <br> )
-[//]: # ( Berzan: A developer and a proud crypto ecosystem member. <br> )
-[//]: # ( Omer: blablablablablablablablablablablablablablabla <br> )
+### Who Are The Team Members? 
+Emre: A blockchain & AI developer for a very long time. <br>
+Zayn: The youngest in the team but the oldest in the meme game. <br>
+Berzan: A developer and a proud crypto ecosystem member. <br>
+Omer: A Rust developer working on various blockchains.  <br>

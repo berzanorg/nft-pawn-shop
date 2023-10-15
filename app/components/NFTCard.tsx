@@ -15,16 +15,18 @@ export const NFTCard = ({ order, debt, lend }: Props) => {
 
     useEffect(() => {
         if (lend) {
-            const deadlineDate = new Date(lend.deadline.toNumber() * 1000).getUTCMilliseconds()
-            const now = new Date(Date.now()).getUTCMilliseconds()
-            if (now > deadlineDate) setDeadline('')
-            else if (deadlineDate > now) setDeadline(format(deadlineDate - now))
+            const deadlineTimestamp = lend.deadline.toNumber()
+            const now = Math.round(Date.now() / 1000)
+            console.log(deadlineTimestamp - now)
+            if (now > deadlineTimestamp) setDeadline('')
+            else setDeadline(format(deadlineTimestamp - now))
         }
         if (debt) {
-            const deadlineDate = new Date(debt.deadline.toNumber() * 1000).getUTCMilliseconds()
-            const now = new Date(Date.now()).getUTCMilliseconds()
-            if (now > deadlineDate) setDeadline('')
-            else if (deadlineDate > now) setDeadline(format(deadlineDate - now))
+            const deadlineTimestamp = debt.deadline.toNumber()
+            const now = Math.round(Date.now() / 1000)
+            console.log(deadlineTimestamp - now)
+            if (now > deadlineTimestamp) setDeadline('')
+            else setDeadline(format(deadlineTimestamp - now))
         }
     }, [lend, debt])
 

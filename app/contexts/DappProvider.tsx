@@ -202,8 +202,8 @@ export const DappProvider = ({ children }: { children: ReactNode }) => {
             .accounts({ borrower: pda })
             .rpc()
 
-        fetchProgramData()
-    }, [program, pda])
+        setTimeout(fetchProgramData, 1000);
+    }, [program, pda, fetchProgramData])
 
     const cancelOrder = useCallback(async (orderIndex: number) => {
         if (!pda || !program) return
@@ -212,8 +212,8 @@ export const DappProvider = ({ children }: { children: ReactNode }) => {
             .accounts({ borrower: pda })
             .rpc()
 
-        fetchProgramData()
-    }, [program, pda])
+        setTimeout(fetchProgramData, 1000);
+    }, [program, pda, fetchProgramData])
 
 
     const executeOrder = useCallback(async (orderIndex: number, borrowerPda: PublicKey) => {
@@ -223,8 +223,8 @@ export const DappProvider = ({ children }: { children: ReactNode }) => {
             .accounts({ borrower: borrowerPda, lender: pda })
             .rpc()
 
-        fetchProgramData()
-    }, [program, pda])
+        setTimeout(fetchProgramData, 1000);
+    }, [program, pda, fetchProgramData])
 
 
     const payDebt = useCallback(async (debtIndex: number, lenderPda: PublicKey) => {
@@ -234,9 +234,8 @@ export const DappProvider = ({ children }: { children: ReactNode }) => {
             .accounts({ borrower: pda, lender: lenderPda })
             .rpc()
 
-
-        fetchProgramData()
-    }, [program, pda])
+        setTimeout(fetchProgramData, 1000);
+    }, [program, pda, fetchProgramData])
 
     const seize = useCallback(async (debtIndex: number, borrowerPda: PublicKey) => {
         if (!pda || !program) return
@@ -245,9 +244,8 @@ export const DappProvider = ({ children }: { children: ReactNode }) => {
             .accounts({ borrower: borrowerPda, lender: pda })
             .rpc()
 
-
-        fetchProgramData()
-    }, [program, pda])
+        setTimeout(fetchProgramData, 1000);
+    }, [program, pda, fetchProgramData])
 
     return (
         <Context.Provider value={{

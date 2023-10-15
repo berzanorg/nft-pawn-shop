@@ -43,8 +43,6 @@ describe("nft-pawn-shop", () => {
             createUser(),
         ])
 
-        console.log('acc done')
-
         // request demo assets
         await program.methods.getDemoAssets()
             .accounts({
@@ -53,13 +51,10 @@ describe("nft-pawn-shop", () => {
             }).signers([user1.keypair])
             .rpc()
 
-
-        console.log('assets dones')
         const { demoNfts, demoTokens } = await program.account.pawnShopUser.fetch(user1.pda)
         assert.deepEqual(demoNfts, 1, 'Demo NFTs count is not equal to 1')
         assert.deepEqual(demoTokens, 100, 'Demo tokens count is not equal to 100')
 
-        console.log('fetch done')
         await program.methods.getDemoAssets()
             .accounts({
                 pawnShopUser: user2.pda,
@@ -73,10 +68,6 @@ describe("nft-pawn-shop", () => {
                 signer: user3.keypair.publicKey
             }).signers([user3.keypair])
             .rpc()
-
-
-
-        console.log('demo assets done')
 
 
 
@@ -97,7 +88,6 @@ describe("nft-pawn-shop", () => {
         assert.deepEqual(res.orders[0].some.borrowAmount, borrowAmount, 'Borrow amount is not equal to 10')
         assert.deepEqual(res.orders[0].some.debtAmount, debtAmount, 'Debt amount is not equal to 11')
 
-        console.log('ordereplace')
 
 
 
@@ -115,7 +105,6 @@ describe("nft-pawn-shop", () => {
         assert(res.orders[0].none, 'Order is not cancelled')
 
 
-        console.log('ordercanceld')
 
 
         await program.methods.placeOrder(duration, borrowAmount, debtAmount)
@@ -129,7 +118,6 @@ describe("nft-pawn-shop", () => {
         assert.deepEqual(res.demoNfts, 0, 'NFT is not locked')
 
 
-        console.log('orderplaced')
         try {
             await program.methods.cancelOrder(1)
                 .accounts({
@@ -160,7 +148,6 @@ describe("nft-pawn-shop", () => {
         res = await program.account.pawnShopUser.fetch(user2.pda)
         assert.deepEqual(res.demoTokens, 90, 'Demo tokens amount is not equal to 90')
 
-        console.log('executed')
 
         await program.methods.payDebt(0)
             .accounts({
@@ -175,8 +162,6 @@ describe("nft-pawn-shop", () => {
         assert.deepEqual(res.demoTokens, 99, 'Demo tokens amount is not equal to 99')
         res = await program.account.pawnShopUser.fetch(user2.pda)
         assert.deepEqual(res.demoTokens, 101, 'Demo tokens amount is not equal to 101')
-
-        console.log('paid')
 
 
 
@@ -196,7 +181,6 @@ describe("nft-pawn-shop", () => {
             })
             .signers([user2.keypair])
             .rpc()
-        console.log('placed&executed')
 
         // debt payment deadline is not over so lender cannot seize the nft
         try {

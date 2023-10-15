@@ -94,7 +94,6 @@ export const DappProvider = ({ children }: { children: ReactNode }) => {
             [Buffer.from("pawn_shop_user"), publicKey.toBuffer()],
             new PublicKey(idl.metadata.address)
         )
-        console.log(pda)
 
         return pda
     }, [publicKey])
@@ -183,7 +182,6 @@ export const DappProvider = ({ children }: { children: ReactNode }) => {
         [programData, pda]
     )
 
-    useEffect(() => console.log('bal', demoTokensBalance), [demoTokensBalance])
 
 
 

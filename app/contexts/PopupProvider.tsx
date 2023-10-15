@@ -38,7 +38,6 @@ export const PopupProvider = ({ children }: { children: ReactNode }) => {
                                     3 * 30 * 24 * 60 * 60; // `3 Months`
 
         if (!durationAsSeconds || !borrow.value || !debt.value || !placeOrder) return
-        console.log('hey')
         const borrowAmount = parseInt(borrow.value)
         const debtAmount = parseInt(debt.value)
 
@@ -50,10 +49,6 @@ export const PopupProvider = ({ children }: { children: ReactNode }) => {
     const popupPawn = () => {
         setPopup({ kind: 'pawn' })
     }
-
-    useEffect(() => {
-        console.log('fds')
-    }, [popup])
 
     return (
         <Context.Provider value={{ popupPawn }}>

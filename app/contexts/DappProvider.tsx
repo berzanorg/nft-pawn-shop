@@ -85,6 +85,7 @@ export const DappProvider = ({ children }: { children: ReactNode }) => {
 
     useEffect(() => {
         fetchProgramData()
+        setInterval(fetchProgramData, 30000)
     }, [fetchProgramData])
 
     const pda = useMemo(() => {

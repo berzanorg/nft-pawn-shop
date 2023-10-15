@@ -183,6 +183,8 @@ export const DappProvider = ({ children }: { children: ReactNode }) => {
         [programData, pda]
     )
 
+    useEffect(() => console.log('bal', demoTokensBalance), [demoTokensBalance])
+
 
 
     const getDemoAssets = useCallback(async () => {
@@ -191,7 +193,9 @@ export const DappProvider = ({ children }: { children: ReactNode }) => {
         await program.methods.getDemoAssets()
             .accounts({ pawnShopUser: pda })
             .rpc()
-    }, [program, pda])
+
+        setTimeout(fetchProgramData, 1000);
+    }, [program, pda, fetchProgramData])
 
 
     const placeOrder = useCallback(async (durationAsSeconds: number, borrowAmount: number, debtAmount: number) => {

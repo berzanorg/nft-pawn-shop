@@ -49,14 +49,14 @@ export const NFTCard = ({ order, debt, lend }: Props) => {
                 <>
                     <p className="leading-none text-slate-400">Your Debt: <span className="text-slate-300">${debt.amount}</span></p>
                     <p className="leading-none text-slate-400">Deadline: <span className="text-slate-300">{deadline || 'done'}</span></p>
-                    <button onClick={payDebt ? () => payDebt(debt.index, debt.lenderPda) : undefined} className="h-8 font-medium duration-200 rounded-xl bg-sky-500 hover:bg-sky-400 hover:scale-95 active:scale-100">Pay Debt</button>
+                    <button disabled={!deadline} onClick={payDebt ? () => payDebt(debt.index, debt.lenderPda) : undefined} className="disabled:bg-slate-400 disabled:hover:bg-slate-300 disabled:hover:scale-100 disabled:cursor-not-allowed h-8 font-medium duration-200 rounded-xl bg-sky-500 hover:bg-sky-400 hover:scale-95 active:scale-100">Pay Debt</button>
                 </>
 
             ) : lend ? (
                 <>
                     <p className="leading-none text-slate-400">Will Pay: <span className="text-slate-300">${lend.amount}</span></p>
                     <p className="leading-none text-slate-400">Deadline: <span className="text-slate-300">{deadline || 'done'}</span></p>
-                    <button disabled={Boolean(deadline)} onClick={seize ? () => seize(lend.index, lend.borrowerPda) : undefined} className="disabled:bg-slate-500 disabled:hover:scale-100 disabled:cursor-not-allowed h-8 font-medium duration-200 rounded-xl bg-sky-500 hover:bg-sky-400 hover:scale-95 active:scale-100">Seize NFT</button>
+                    <button disabled={Boolean(deadline)} onClick={seize ? () => seize(lend.index, lend.borrowerPda) : undefined} className="disabled:bg-slate-400 disabled:hover:bg-slate-300 disabled:hover:scale-100 disabled:cursor-not-allowed h-8 font-medium duration-200 rounded-xl bg-sky-500 hover:bg-sky-400 hover:scale-95 active:scale-100">Seize NFT</button>
                 </>
             ) : (
                 <>

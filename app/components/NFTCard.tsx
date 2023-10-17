@@ -30,38 +30,38 @@ export const NFTCard = ({ order, debt, lend }: Props) => {
 
 
     return (
-        <div className='flex flex-col self-center w-full gap-3 rounded-2xl bg--800 max-w-7xl bg-slate-800 p-2.5'>
+        <div className='flex font-medium flex-col self-center w-full gap-3 rounded-2xl max-w-7xl bg-[#2d3765] p-2.5'>
             <Image alt="NFT Art" src={nftImage} className="rounded-2xl" />
             {order?.account && userPda && order.account.equals(userPda) ? (
                 <>
-                    <p className="leading-none text-slate-400">Will Pay: <span className="text-slate-300">${order.debtAmount}</span></p>
-                    <p className="leading-none text-slate-400">Duration: <span className="text-slate-300">{format(order.duration.toNumber())}</span></p>
-                    <button onClick={cancelOrder ? () => cancelOrder(order.index) : undefined} className="h-8 font-medium duration-200 rounded-xl bg-rose-500 hover:bg-rose-400 hover:scale-95 active:scale-100">Cancel Order</button>
+                    <p className="leading-none text-indigo-300">Will Pay: <span className="text-indigo-100">${order.debtAmount}</span></p>
+                    <p className="leading-none text-indigo-300">Duration: <span className="text-indigo-100">{format(order.duration.toNumber())}</span></p>
+                    <button onClick={cancelOrder ? () => cancelOrder(order.index) : undefined} className="h-8 font-semibold duration-200 bg-pink-500 rounded-xl hover:bg-pink-400 hover:scale-95 active:scale-100">Cancel Order</button>
                 </>
             ) : order ? (
                 <>
-                    <p className="leading-none text-slate-400">Will Pay: <span className="text-slate-300">${order.debtAmount}</span></p>
-                    <p className="leading-none text-slate-400">Duration: <span className="text-slate-300">{format(order.duration.toNumber())}</span></p>
-                    <button onClick={executeOrder ? () => executeOrder(order.index, order.account) : undefined} className="h-8 font-medium duration-200 rounded-xl bg-sky-500 hover:bg-sky-400 hover:scale-95 active:scale-100">Lend ${order.borrowAmount}</button>
+                    <p className="leading-none text-indigo-300">Will Pay: <span className="text-indigo-100">${order.debtAmount}</span></p>
+                    <p className="leading-none text-indigo-300">Duration: <span className="text-indigo-100">{format(order.duration.toNumber())}</span></p>
+                    <button onClick={executeOrder ? () => executeOrder(order.index, order.account) : undefined} className="h-8 font-semibold duration-200 bg-indigo-500 rounded-xl hover:bg-indigo-400 hover:scale-95 active:scale-100">Lend ${order.borrowAmount}</button>
                 </>
 
             ) : debt ? (
                 <>
-                    <p className="leading-none text-slate-400">Your Debt: <span className="text-slate-300">${debt.amount}</span></p>
-                    <p className="leading-none text-slate-400">Deadline: <span className="text-slate-300">{deadline || 'done'}</span></p>
-                    <button disabled={!deadline} onClick={payDebt ? () => payDebt(debt.index, debt.lenderPda) : undefined} className="disabled:bg-slate-400 disabled:hover:bg-slate-300 disabled:hover:scale-100 disabled:cursor-not-allowed h-8 font-medium duration-200 rounded-xl bg-sky-500 hover:bg-sky-400 hover:scale-95 active:scale-100">Pay Debt</button>
+                    <p className="leading-none text-indigo-300">Your Debt: <span className="text-indigo-100">${debt.amount}</span></p>
+                    <p className="leading-none text-indigo-300">Deadline: <span className="text-indigo-100">{deadline || 'done'}</span></p>
+                    <button disabled={!deadline} onClick={payDebt ? () => payDebt(debt.index, debt.lenderPda) : undefined} className="h-8 font-semibold duration-200 bg-indigo-500 disabled:bg-slate-500 disabled:hover:bg-slate-400 disabled:hover:scale-100 disabled:cursor-not-allowed rounded-xl hover:bg-indigo-400 hover:scale-95 active:scale-100">Pay Debt</button>
                 </>
 
             ) : lend ? (
                 <>
-                    <p className="leading-none text-slate-400">Will Pay: <span className="text-slate-300">${lend.amount}</span></p>
-                    <p className="leading-none text-slate-400">Deadline: <span className="text-slate-300">{deadline || 'done'}</span></p>
-                    <button disabled={Boolean(deadline)} onClick={seize ? () => seize(lend.index, lend.borrowerPda) : undefined} className="disabled:bg-slate-400 disabled:hover:bg-slate-300 disabled:hover:scale-100 disabled:cursor-not-allowed h-8 font-medium duration-200 rounded-xl bg-sky-500 hover:bg-sky-400 hover:scale-95 active:scale-100">Seize NFT</button>
+                    <p className="leading-none text-indigo-300">Will Pay: <span className="text-indigo-100">${lend.amount}</span></p>
+                    <p className="leading-none text-indigo-300">Deadline: <span className="text-indigo-100">{deadline || 'done'}</span></p>
+                    <button disabled={Boolean(deadline)} onClick={seize ? () => seize(lend.index, lend.borrowerPda) : undefined} className="h-8 font-semibold duration-200 bg-indigo-500 disabled:bg-slate-500 disabled:hover:bg-slate-400 disabled:hover:scale-100 disabled:cursor-not-allowed rounded-xl hover:bg-indigo-400 hover:scale-95 active:scale-100">Seize NFT</button>
                 </>
             ) : (
                 <>
-                    <p className="leading-none text-slate-400">It can be pawned.</p>
-                    <button onClick={popupPawn} className="h-8 font-medium duration-200 rounded-xl bg-sky-500 hover:bg-sky-400 hover:scale-95 active:scale-100">Pawn</button>
+                    <p className="leading-none text-indigo-300">It can be pawned.</p>
+                    <button onClick={popupPawn} className="h-8 font-semibold duration-200 bg-indigo-500 rounded-xl hover:bg-indigo-400 hover:scale-95 active:scale-100">Pawn</button>
                 </>
             )}
         </div>

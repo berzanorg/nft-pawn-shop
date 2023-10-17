@@ -10,9 +10,9 @@ export const PopupRequestDemoAssets = () => {
     return (
         <>
             {!isHidden && connected && isLoaded && demoNFTsCount === 0 && demoTokensBalance === 0 && (
-                <div className="fixed flex flex-col w-full gap-2.5 p-4 -translate-x-1/2 -translate-y-1/2 border max-w-max bg-slate-800 border-slate-600 rounded-2xl top-1/2 left-1/2">
+                <div className="fixed z-40 flex flex-col w-full gap-8 p-4 -translate-x-1/2 -translate-y-1/2 bg-indigo-900 border border-indigo-600 max-w-max rounded-2xl top-1/2 left-1/2">
                     <p className="font-semibold sm:text-lg">You can request demo assets for testing.</p>
-                    <button onClick={() => { setHidden(true); getDemoAssets() }} type="button" className="font-semibold duration-200 sm:text-lg h-9 rounded-xl bg-sky-500 hover:bg-sky-400 hover:scale-95 active:scale-100">Request Demo Assets</button>
+                    <button onClick={() => { setHidden(true); getDemoAssets() }} type="button" className="font-semibold duration-200 bg-indigo-500 sm:text-lg h-9 rounded-xl hover:bg-indigo-400 hover:scale-95 active:scale-100">Request Demo Assets</button>
                 </div>
             )}
         </>

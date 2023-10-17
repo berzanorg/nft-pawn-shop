@@ -54,11 +54,11 @@ export const PopupProvider = ({ children }: { children: ReactNode }) => {
         <Context.Provider value={{ popupPawn }}>
             {popup && (
                 popup.kind === 'pawn' ? (
-                    <div className="z-50 fixed flex flex-col w-full gap-2.5 p-4 -translate-x-1/2 -translate-y-1/2 border max-w-max bg-slate-800 border-slate-600 rounded-2xl top-1/2 left-1/2">
-                        <p className="font-bold text-lg">Pawn your NFT!</p>
+                    <div className="z-50 fixed flex flex-col w-full gap-2.5 p-4 -translate-x-1/2 -translate-y-1/2 border max-w-max bg-indigo-900 border-indigo-600 rounded-2xl top-1/2 left-1/2">
+                        <p className="text-lg font-bold">Pawn your NFT!</p>
                         <div className="flex flex-col gap-0.5">
                             <p className="font-semibold">Duration:</p>
-                            <select id='duration' className="bg-slate-900 outline-none px-2 h-9 border border-slate-600 rounded-lg">
+                            <select id='duration' className="px-2 border rounded-lg outline-none bg-indigo-950 h-9 border-slate-600">
                                 <option>Select</option>
                                 <option>2 Mins</option>
                                 <option>1 Day</option>
@@ -70,13 +70,13 @@ export const PopupProvider = ({ children }: { children: ReactNode }) => {
                         </div>
                         <div className="flex flex-col gap-0.5">
                             <p className="font-semibold">Amount You Want:</p>
-                            <input id="borrow" type="number" placeholder="10" className="font-medium placeholder:text-slate-600 bg-slate-900 outline-none px-2 h-9 border border-slate-600 rounded-lg"></input>
+                            <input id="borrow" type="number" placeholder="10" className="px-2 font-medium border rounded-lg outline-none placeholder:text-indigo-300/30 bg-indigo-950 h-9 border-slate-600"></input>
                         </div>
                         <div className="flex flex-col gap-0.5">
                             <p className="font-semibold">Amount You Will Pay:</p>
-                            <input id="debt" type="number" placeholder="11" className="font-medium placeholder:text-slate-600 bg-slate-900 outline-none px-2 h-9 border border-slate-600 rounded-lg"></input>
+                            <input id="debt" type="number" placeholder="11" className="px-2 font-medium border rounded-lg outline-none placeholder:text-indigo-300/30 bg-indigo-950 h-9 border-slate-600"></input>
                         </div>
-                        <button onClick={pawnNFT} className="font-semibold duration-200 text-lg h-9 rounded-xl bg-sky-500 px-4 w-72 hover:bg-sky-400 hover:scale-95 active:scale-100">Pawn Your NFT</button>
+                        <button onClick={pawnNFT} className="px-4 text-lg font-semibold duration-200 bg-indigo-500 h-9 rounded-xl w-72 hover:bg-indigo-400 hover:scale-95 active:scale-100">Pawn Your NFT</button>
                     </div>
                 ) : <></>
             )}

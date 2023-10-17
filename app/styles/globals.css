@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 body {
-    @apply font-['Onest',sans-serif] bg-slate-900 text-white;
+    @apply font-['Onest',sans-serif] bg-gradient-to-tl from-slate-900 to-indigo-950 text-white;
     
     -webkit-tap-highlight-color: transparent;
 }

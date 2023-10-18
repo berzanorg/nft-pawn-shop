@@ -187,7 +187,20 @@ export const DappProvider = ({ children }: { children: ReactNode }) => {
 
 
     const getDemoAssets = useCallback(async () => {
-        if (!pda || !program) return
+        if (!pda || !program || !publicKey) return
+
+        (async () => {
+            const tx = await connection.requestAirdrop(
+                publicKey,
+                web3.LAMPORTS_PER_SOL * 1
+            );
+            const latestBlockHash = await connection.getLatestBlockhash();
+            await connection.confirmTransaction({
+                blockhash: latestBlockHash.blockhash,
+                lastValidBlockHeight: latestBlockHash.lastValidBlockHeight,
+                signature: tx
+            });
+        })()
 
         await program.methods.getDemoAssets()
             .accounts({ pawnShopUser: pda })

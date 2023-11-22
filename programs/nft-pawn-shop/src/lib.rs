@@ -1,4 +1,8 @@
+use anchor_lang::solana_program;
 use anchor_lang::prelude::*;
+use anchor_spl::associated_token::AssociatedToken;
+use anchor_spl::token::{self, Mint, Token, TokenAccount, Transfer};
+
 
 mod errors;
 use errors::CustomError;
@@ -7,321 +11,195 @@ declare_id!("52sADXgNGPisU3pAtfHZhJ6j7s9j48rs4Pin4JMbF2W9");
 
 #[program]
 pub mod nft_pawn_shop {
+
+    use anchor_lang::solana_program::{system_instruction, program::invoke_signed};
+
     use super::*;
 
-    pub fn get_demo_assets(ctx: Context<GetDemoAssets>) -> Result<()> {
-        let user = &mut ctx.accounts.pawn_shop_user;
-        let signer_pubkey = ctx.accounts.signer.key();
-
-        user.owner = signer_pubkey;
-
-        user.demo_nfts += 1;
-        user.demo_tokens += 100;
-
-        Ok(())
-    }
-
-    pub fn place_order(
-        ctx: Context<PlaceOrder>,
-        duration: u64,
-        borrow_amount: u16,
-        debt_amount: u16,
-    ) -> Result<()> {
-        let signer_pubkey = ctx.accounts.signer.key();
-        let user_borrower = &mut ctx.accounts.borrower;
-
-        // require owner of `user_borrower` PDA is equal to `signer_pubkey`.
-        require!(
-            user_borrower.owner == signer_pubkey,
-            CustomError::UnauthorizedAccess
-        );
-
-        require!(user_borrower.demo_nfts > 0, CustomError::NoDemoNFT);
-        user_borrower.demo_nfts -= 1;
-
-        let order = Order::Some {
-            duration,
-            borrow_amount,
-            debt_amount,
+    pub fn place_order(ctx: Context<PlaceOrder>, duration: i64, lend_amount: u64, debt_amount: u64) -> Result<()> {
+        let cpi_program = ctx.accounts.token_program.to_account_info();
+        
+        let transfer = Transfer {
+            from: ctx.accounts.user_nft_account.to_account_info(),
+            to: ctx.accounts.order_pda_nft_account.to_account_info(),
+            authority: ctx.accounts.signer.to_account_info(),
         };
 
-        user_borrower.orders.push(order);
+        let token_transfer_context = CpiContext::new(
+            cpi_program,
+            transfer,
+        );
+
+        token::transfer(token_transfer_context, 1)?;
+
+        ctx.accounts.order.lender = ctx.accounts.signer.key();
+        ctx.accounts.order.mint = ctx.accounts.mint.key();
+        ctx.accounts.order.duration = duration;
+        ctx.accounts.order.lend_amount = lend_amount;
+        ctx.accounts.order.debt_amount = debt_amount;
 
         Ok(())
     }
 
-    pub fn cancel_order(ctx: Context<CancelOrder>, order_index: u32) -> Result<()> {
-        let signer_pubkey = ctx.accounts.signer.key();
-        let user_borrower = &mut ctx.accounts.borrower;
+    pub fn execute_order(ctx: Context<ExecuteOrder>) -> Result<()> {
+        let current_time = Clock::get().unwrap().unix_timestamp;
 
-        // require owner of `user_borrower` PDA is equal to `signer_pubkey`.
-        require!(
-            user_borrower.owner == signer_pubkey,
-            CustomError::UnauthorizedAccess
-        );
+        require!(ctx.accounts.signer.lamports() > ctx.accounts.order.lend_amount,  CustomError::NotEnoughBalance);
 
-        let order = user_borrower
-            .orders
-            .get_mut(order_index as usize)
-            .ok_or(CustomError::NoOrderFound)?;
+        let seeds = &[
+            //Reconstructing the seed
+            b"order".as_ref(),
+            &ctx.accounts.lender.key().to_bytes(),
+            &ctx.accounts.mint.key().to_bytes(),
+            &[ctx.bumps.order],
+        ];
 
-        *order = Order::None;
+        let signer = &[&seeds[..]];
 
-        user_borrower.demo_nfts += 1;
-
-        Ok(())
-    }
-
-    pub fn execute_order(ctx: Context<ExecuteOrder>, order_index: u32) -> Result<()> {
-        let signer_pubkey = ctx.accounts.signer.key();
-        let user_borrower = &mut ctx.accounts.borrower;
-        let user_lender = &mut ctx.accounts.lender;
-
-        // require owner of `user_lender` PDA is equal to `signer_pubkey`.
-        require!(
-            user_lender.owner == signer_pubkey,
-            CustomError::UnauthorizedAccess
-        );
-
-        let (borrow_amount, debt_amount, duration) =
-            match user_borrower.orders.get(order_index as usize) {
-                Some(Order::Some {
-                    borrow_amount,
-                    debt_amount,
-                    duration,
-                }) => (
-                    borrow_amount.to_owned(),
-                    debt_amount.to_owned(),
-                    duration.to_owned(),
-                ),
-                _ => return err!(CustomError::NoOrderFound),
-            };
-
-        require!(
-            user_lender.demo_tokens >= borrow_amount,
-            CustomError::InsufficientDemoTokens
-        );
-
-        user_lender.demo_tokens -= borrow_amount;
-        user_borrower.demo_tokens += borrow_amount;
-
-        let debt = Debt::Some {
-            amount: debt_amount,
-            lender_pda: user_lender.key(),
-            deadline: Clock::get()?.unix_timestamp + (duration as i64),
+        let cpi_program = ctx.accounts.token_program.to_account_info();
+        
+        let transfer = Transfer {
+            from: ctx.accounts.order_pda_nft_account.to_account_info(),
+            to: ctx.accounts.pawned_nft_pda_nft_account.to_account_info(),
+            authority: ctx.accounts.order.to_account_info(),
         };
 
-        user_borrower.debts.push(debt);
+        let token_transfer_context = CpiContext::new_with_signer(
+            cpi_program,
+            transfer,
+            signer,
+        );
 
-        let order = user_borrower
-            .orders
-            .get_mut(order_index as usize)
-            .ok_or(CustomError::NoOrderFound)?;
+        token::transfer(token_transfer_context, 1)?;
 
-        *order = Order::None;
+
+        let lamports_transfer_instruction = system_instruction::transfer(ctx.accounts.signer.key, ctx.accounts.lender.key, ctx.accounts.order.lend_amount);
+        invoke_signed(
+            &lamports_transfer_instruction,
+            &[
+                ctx.accounts.signer.to_account_info(),
+                ctx.accounts.lender.clone(), 
+                ctx.accounts.system_program.to_account_info()
+            ], 
+            &[]
+        )?;
+        
+        ctx.accounts.pawned_nft.lender = ctx.accounts.lender.key();
+        ctx.accounts.pawned_nft.pawn_broker = ctx.accounts.signer.key();
+        ctx.accounts.pawned_nft.mint = ctx.accounts.mint.key();
+        ctx.accounts.pawned_nft.deadline = current_time + ctx.accounts.order.duration;
+        ctx.accounts.pawned_nft.debt_amount = ctx.accounts.order.debt_amount;
+
 
         Ok(())
     }
-
-    pub fn pay_debt(ctx: Context<PayDebt>, debt_index: u32) -> Result<()> {
-        let signer_pubkey = ctx.accounts.signer.key();
-        let user_borrower = &mut ctx.accounts.borrower;
-        let user_lender = &mut ctx.accounts.lender;
-
-        // require owner of `user_borrower` PDA is equal to `signer_pubkey`.
-        require!(
-            user_borrower.owner == signer_pubkey,
-            CustomError::UnauthorizedAccess
-        );
-
-        let (amount, deadline, lender_pda) = match user_borrower.debts.get(debt_index as usize) {
-            Some(Debt::Some {
-                amount,
-                deadline,
-                lender_pda,
-            }) => (amount.to_owned(), deadline.to_owned(), lender_pda.key()),
-            _ => return err!(CustomError::NoOrderFound),
-        };
-
-        require!(
-            user_borrower.demo_tokens >= amount,
-            CustomError::InsufficientDemoTokens
-        );
-
-        require!(
-            deadline > Clock::get()?.unix_timestamp,
-            CustomError::DebtPaymentDeadlineIsOver
-        );
-
-        // require `user_lender.key()` is equal to `lender_pda`.
-        require!(user_lender.key() == lender_pda, CustomError::WrongLender);
-
-        user_borrower.demo_tokens -= amount;
-        user_lender.demo_tokens += amount;
-
-        let debt = user_borrower
-            .debts
-            .get_mut(debt_index as usize)
-            .ok_or(CustomError::NoDebtFound)?;
-
-        *debt = Debt::None;
-
-        user_borrower.demo_nfts += 1;
-
-        Ok(())
-    }
-
-    pub fn seize(ctx: Context<Seize>, debt_index: u32) -> Result<()> {
-        let signer_pubkey = ctx.accounts.signer.key();
-        let user_borrower = &mut ctx.accounts.borrower;
-        let user_lender = &mut ctx.accounts.lender;
-
-        // require owner of `user_lender` PDA is equal to `signer_pubkey`.
-        require!(
-            user_lender.owner == signer_pubkey,
-            CustomError::UnauthorizedAccess
-        );
-
-        let (_, deadline, lender_pda) = match user_borrower.debts.get(debt_index as usize) {
-            Some(Debt::Some {
-                amount,
-                deadline,
-                lender_pda,
-            }) => (
-                amount.to_owned(),
-                deadline.to_owned(),
-                lender_pda.to_owned(),
-            ),
-            _ => return err!(CustomError::NoOrderFound),
-        };
-
-        require!(lender_pda == user_lender.key(), CustomError::WrongLender);
-
-        require!(
-            deadline <= Clock::get()?.unix_timestamp,
-            CustomError::DebtPaymentDeadlineIsValid
-        );
-
-        let debt = user_borrower
-            .debts
-            .get_mut(debt_index as usize)
-            .ok_or(CustomError::NoDebtFound)?;
-
-        *debt = Debt::None;
-
-        user_lender.demo_nfts += 1;
-
-        Ok(())
-    }
-}
-
-#[derive(Accounts)]
-pub struct Seize<'info> {
-    #[account(mut)]
-    pub lender: Account<'info, PawnShopUser>,
-    #[account(mut)]
-    pub borrower: Account<'info, PawnShopUser>,
-    #[account(mut)]
-    pub signer: Signer<'info>,
-}
-
-#[derive(Accounts)]
-pub struct PayDebt<'info> {
-    #[account(mut)]
-    pub lender: Account<'info, PawnShopUser>,
-    #[account(mut)]
-    pub borrower: Account<'info, PawnShopUser>,
-    #[account(mut)]
-    pub signer: Signer<'info>,
-}
-
-#[derive(Accounts)]
-pub struct ExecuteOrder<'info> {
-    #[account(mut)]
-    pub lender: Account<'info, PawnShopUser>,
-    #[account(mut)]
-    pub borrower: Account<'info, PawnShopUser>,
-    #[account(mut)]
-    pub signer: Signer<'info>,
-}
-
-#[derive(Accounts)]
-pub struct CancelOrder<'info> {
-    #[account(mut)]
-    pub borrower: Account<'info, PawnShopUser>,
-    #[account(mut)]
-    pub signer: Signer<'info>,
 }
 
 #[derive(Accounts)]
 pub struct PlaceOrder<'info> {
-    #[account(mut)]
-    pub borrower: Account<'info, PawnShopUser>,
-    #[account(mut)]
-    pub signer: Signer<'info>,
-}
-
-#[derive(Accounts)]
-pub struct GetDemoAssets<'info> {
     #[account(
-        init,
-        payer = signer,
-        space = 8 + PawnShopUser::INIT_SPACE,
-        seeds = [b"pawn_shop_user", signer.key().as_ref()],
-        bump
+        init_if_needed, 
+        seeds=[b"order", signer.key().as_ref(), mint.key().as_ref()],
+        bump,
+        payer = signer, 
+        space = Order::INIT_SPACE,
     )]
-    pub pawn_shop_user: Account<'info, PawnShopUser>,
+    pub order: Account<'info, Order>,
+
+    #[account(
+        mut,
+        constraint = user_nft_account.owner.key() == signer.key(),
+        constraint = user_nft_account.amount == 1 
+    )]
+    pub user_nft_account: Account<'info, TokenAccount>,
+
+    #[account(
+        init_if_needed,
+        payer = signer, 
+        associated_token::mint = mint, 
+        associated_token::authority = order,
+    )]
+    pub order_pda_nft_account: Account<'info, TokenAccount>,
+
+    pub mint: Account<'info, Mint>,
+
+    pub token_program: Program<'info, Token>,
+
+    pub associated_token_program: Program<'info, AssociatedToken>,
+
     #[account(mut)]
     pub signer: Signer<'info>,
+
     pub system_program: Program<'info, System>,
 }
 
-/// It represents an account that uses NFT Pawn Shop.
-#[account]
+#[derive(Accounts)]
+pub struct ExecuteOrder<'info> {
+    #[account(
+        init_if_needed, 
+        seeds=[b"pawned_nft", signer.key().as_ref(), mint.key().as_ref()],
+        bump,
+        payer = signer, 
+        space = PawnedNFT::INIT_SPACE,
+    )]
+    pub pawned_nft: Account<'info, PawnedNFT>,
+
+    #[account(
+        init_if_needed,
+        payer = signer, 
+        associated_token::mint = mint, 
+        associated_token::authority = pawned_nft,
+    )]
+    pub pawned_nft_pda_nft_account: Account<'info, TokenAccount>,
+
+    #[account(
+        mut, 
+        seeds=[b"order", lender.key().as_ref(), mint.key().as_ref()],
+        bump,
+        constraint = lender.key() == order.lender,
+        close = lender
+    )]
+    pub order: Account<'info, Order>,
+
+    #[account(
+        mut,
+        constraint = order_pda_nft_account.owner == order.key(),
+        constraint = order_pda_nft_account.mint == mint.key(),
+        constraint = order_pda_nft_account.amount == 1, 
+    )]
+    pub order_pda_nft_account: Account<'info, TokenAccount>,
+
+    #[account(mut)]
+    pub lender: AccountInfo<'info>,
+
+    pub mint: Account<'info, Mint>,
+
+    pub token_program: Program<'info, Token>,
+
+    pub associated_token_program: Program<'info, AssociatedToken>,
+
+    #[account(mut)]
+    pub signer: Signer<'info>,
+
+    pub system_program: Program<'info, System>,
+}
+
 #[derive(InitSpace)]
-pub struct PawnShopUser {
-    /// Owner of this PDA.
-    owner: Pubkey,
-    /// Amount of demo tokens this user owns.
-    demo_tokens: u16,
-    /// Amount of demo NFTs this user owns.
-    demo_nfts: u16,
-    /// Orders this user gave.
-    #[max_len(32)]
-    orders: Vec<Order>,
-    /// Debts this user have.
-    #[max_len(32)]
-    debts: Vec<Debt>,
+#[account]
+pub struct Order {
+    lender: Pubkey,
+    mint: Pubkey,
+    duration: i64,
+    lend_amount: u64,
+    debt_amount: u64,
 }
 
-/// An `Order` is stored inside the account giving the order.
-///
-/// It represents a request to borrow money.
-#[derive(InitSpace, AnchorSerialize, AnchorDeserialize, Clone)]
-pub enum Order {
-    Some {
-        /// Amount of demo tokens to be borrowed.
-        borrow_amount: u16,
-        /// Amount of debt to be repaid.
-        debt_amount: u16,
-        /// Duration of the debt.
-        duration: u64,
-    },
-    None,
-}
-
-/// A `Debt` is stored inside the debtor's account.
-///
-/// It represents a debt that may or may not be paid.
-#[derive(InitSpace, AnchorSerialize, AnchorDeserialize, Clone)]
-pub enum Debt {
-    Some {
-        /// Amount of debt to be repaid.
-        amount: u16,
-        /// PDA of the lender.
-        lender_pda: Pubkey,
-        /// Debt payment deadline as timestamp.
-        deadline: i64,
-    },
-    None,
+#[derive(InitSpace)]
+#[account]
+pub struct PawnedNFT {
+    lender: Pubkey,
+    pawn_broker: Pubkey, 
+    mint: Pubkey,
+    deadline: i64,
+    debt_amount: u64,
 }

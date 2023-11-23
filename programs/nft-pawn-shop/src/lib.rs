@@ -90,9 +90,93 @@ pub mod nft_pawn_shop {
         ctx.accounts.pawned_nft.deadline = current_time + ctx.accounts.order.duration;
         ctx.accounts.pawned_nft.debt_amount = ctx.accounts.order.debt_amount;
 
+        Ok(())
+    }
+
+    pub fn pay_debt(ctx: Context<PayDebt>) -> Result<()> {
+        let current_time = Clock::get().unwrap().unix_timestamp;
+
+        require!(current_time < ctx.accounts.pawned_nft.deadline, CustomError::DebtDeadlineIsDone);
+
+        require!(ctx.accounts.signer.lamports() > ctx.accounts.pawned_nft.debt_amount,  CustomError::NotEnoughBalance);
+
+        let seeds = &[
+            //Reconstructing the seed
+            b"pawned_nft".as_ref(),
+            &ctx.accounts.pawn_broker.key().to_bytes(),
+            &ctx.accounts.mint.key().to_bytes(),
+            &[ctx.bumps.pawned_nft],
+        ];
+
+        let signer = &[&seeds[..]];
+
+        let cpi_program = ctx.accounts.token_program.to_account_info();
+        
+        let transfer = Transfer {
+            from: ctx.accounts.pawned_nft_pda_nft_account.to_account_info(),
+            to: ctx.accounts.signer.to_account_info(),
+            authority: ctx.accounts.pawned_nft.to_account_info(),
+        };
+
+        let token_transfer_context = CpiContext::new_with_signer(
+            cpi_program,
+            transfer,
+            signer,
+        );
+
+        token::transfer(token_transfer_context, 1)?;
+
+
+        let lamports_transfer_instruction = system_instruction::transfer(ctx.accounts.signer.key, ctx.accounts.pawn_broker.key, ctx.accounts.pawned_nft.debt_amount);
+        
+        invoke_signed(
+            &lamports_transfer_instruction,
+            &[
+                ctx.accounts.signer.to_account_info(),
+                ctx.accounts.pawn_broker.clone(), 
+                ctx.accounts.system_program.to_account_info()
+            ], 
+            &[]
+        )?;
 
         Ok(())
     }
+
+    pub fn seize_nft(ctx: Context<SeizeNFT>) -> Result<()> {
+        let current_time = Clock::get().unwrap().unix_timestamp;
+
+        require!(current_time > ctx.accounts.pawned_nft.deadline, CustomError::DebtDeadlineIsNotDone);
+
+        let seeds = &[
+            //Reconstructing the seed
+            b"pawned_nft".as_ref(),
+            &ctx.accounts.signer.key().to_bytes(),
+            &ctx.accounts.mint.key().to_bytes(),
+            &[ctx.bumps.pawned_nft],
+        ];
+
+        let signer = &[&seeds[..]];
+
+        let cpi_program = ctx.accounts.token_program.to_account_info();
+        
+        let transfer = Transfer {
+            from: ctx.accounts.pawned_nft_pda_nft_account.to_account_info(),
+            to: ctx.accounts.signer.to_account_info(),
+            authority: ctx.accounts.pawned_nft.to_account_info(),
+        };
+
+        let token_transfer_context = CpiContext::new_with_signer(
+            cpi_program,
+            transfer,
+            signer,
+        );
+
+        token::transfer(token_transfer_context, 1)?;
+
+        Ok(())
+    }
+
+
 }
 
 #[derive(Accounts)]
@@ -168,6 +252,75 @@ pub struct ExecuteOrder<'info> {
         constraint = order_pda_nft_account.amount == 1, 
     )]
     pub order_pda_nft_account: Account<'info, TokenAccount>,
+
+    #[account(mut)]
+    pub lender: AccountInfo<'info>,
+
+    pub mint: Account<'info, Mint>,
+
+    pub token_program: Program<'info, Token>,
+
+    pub associated_token_program: Program<'info, AssociatedToken>,
+
+    #[account(mut)]
+    pub signer: Signer<'info>,
+
+    pub system_program: Program<'info, System>,
+}
+
+#[derive(Accounts)]
+pub struct PayDebt<'info> {
+    #[account(
+        mut, 
+        seeds=[b"pawned_nft", pawn_broker.key().as_ref(), mint.key().as_ref()],
+        bump,
+        constraint = pawn_broker.key() == pawned_nft.pawn_broker,
+        close = pawn_broker
+    )]
+    pub pawned_nft: Account<'info, PawnedNFT>,
+
+    #[account(
+        mut,
+        constraint = pawned_nft_pda_nft_account.owner == pawned_nft.key(),
+        constraint = pawned_nft_pda_nft_account.mint == mint.key(),
+        constraint = pawned_nft_pda_nft_account.amount == 1, 
+    )]
+    pub pawned_nft_pda_nft_account: Account<'info, TokenAccount>,
+
+    #[account(mut)]
+    pub pawn_broker: AccountInfo<'info>,
+
+    pub mint: Account<'info, Mint>,
+
+    pub token_program: Program<'info, Token>,
+
+    pub associated_token_program: Program<'info, AssociatedToken>,
+
+    #[account(mut)]
+    pub signer: Signer<'info>,
+
+    pub system_program: Program<'info, System>,
+}
+
+
+#[derive(Accounts)]
+pub struct SeizeNFT<'info> {
+    #[account(
+        mut, 
+        seeds=[b"pawned_nft", signer.key().as_ref(), mint.key().as_ref()],
+        bump,
+        constraint = signer.key() == pawned_nft.pawn_broker,
+        close = signer
+    )]
+    pub pawned_nft: Account<'info, PawnedNFT>,
+
+    #[account(
+        mut,
+        constraint = pawned_nft_pda_nft_account.owner == pawned_nft.key(),
+        constraint = pawned_nft_pda_nft_account.mint == mint.key(),
+        constraint = pawned_nft_pda_nft_account.amount == 1, 
+    )]
+    pub pawned_nft_pda_nft_account: Account<'info, TokenAccount>,
 
     #[account(mut)]
     pub lender: AccountInfo<'info>,

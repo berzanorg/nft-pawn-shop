@@ -1,8 +1,7 @@
 import { Program, Provider, workspace, getProvider, BN } from "@coral-xyz/anchor"
-import { PublicKey, Transaction, Keypair, Signer, Connection, LAMPORTS_PER_SOL, SystemProgram } from "@solana/web3.js"
+import { PublicKey, Transaction, Keypair, Signer, LAMPORTS_PER_SOL, SystemProgram } from "@solana/web3.js"
 import { ASSOCIATED_TOKEN_PROGRAM_ID, TOKEN_PROGRAM_ID, AccountLayout, createAssociatedTokenAccountInstruction, getAssociatedTokenAddress, createInitializeMintInstruction, createMintToInstruction, MintLayout } from "@solana/spl-token"
 import { NftPawnShop } from "../target/types/nft_pawn_shop"
-import NftPawnShopIdl from "../target/idl/nft_pawn_shop.json"
 import { assert } from "chai"
 
 const get3Sol = async (provider: Provider, wallet: PublicKey) => {
@@ -46,7 +45,7 @@ const mintNFT = async (
     const lamportsForMint =
         await provider.connection.getMinimumBalanceForRentExemption(
             MintLayout.span
-        );
+        )
 
     const createMintAccountInstruction = SystemProgram.createAccount({
         programId: TOKEN_PROGRAM_ID,
@@ -54,26 +53,26 @@ const mintNFT = async (
         fromPubkey: payer.publicKey,
         newAccountPubkey: tokenMintKeypair.publicKey,
         lamports: lamportsForMint,
-    });
+    })
 
     const mintInstruction = createInitializeMintInstruction(
         tokenMintKeypair.publicKey,
         0,
         mintAuthority.publicKey,
         freezeAuthority.publicKey
-    );
+    )
 
     const payerAta = await getAssociatedTokenAddress(
         tokenMintKeypair.publicKey,
         payer.publicKey,
-    );
+    )
 
     const stakerAtaInstruction = createAssociatedTokenAccountInstruction(
         payer.publicKey,
         payerAta,
         payer.publicKey,
         tokenMintKeypair.publicKey
-    );
+    )
 
     const mintToInstruction = createMintToInstruction(
         tokenMintKeypair.publicKey,
@@ -81,11 +80,11 @@ const mintNFT = async (
         payer.publicKey,
         1,
         []
-    );
+    )
 
     const txWithSigners: {
-        tx: Transaction;
-        signers?: Signer[];
+        tx: Transaction
+        signers?: Signer[]
     }[] = [];
 
     const transaction1 = new Transaction();
@@ -96,28 +95,19 @@ const mintNFT = async (
 
     txWithSigners.push({
         tx: transaction1,
-        signers: [payer, tokenMintKeypair], // first has to be payer because this account is used for deduction payment in any transaction
-    });
+        signers: [payer, tokenMintKeypair],
+    })
 
-    await provider.sendAll!(txWithSigners);
+    await provider.sendAll!(txWithSigners)
 
     return {
         payerAta: payerAta,
         tokenMint: tokenMintKeypair.publicKey,
-    };
-};
-
-const getRawTokenAccount = async (provider: Provider, address: PublicKey) => {
-    const account = await provider.connection.getAccountInfo(address)
-    if (account == null) {
-        return account
     }
-    return AccountLayout.decode(account.data)
 }
 
 describe("nft-pawn-shop", () => {
     const provider = getProvider()
-    const connection = provider.connection
     const program = workspace.NftPawnShop as Program<NftPawnShop>
 
 

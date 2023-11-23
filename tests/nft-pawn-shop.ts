@@ -1,11 +1,140 @@
-import * as anchor from "@coral-xyz/anchor"
+import { Program, Provider } from "@coral-xyz/anchor"
+import { PublicKey, Transaction, Keypair, Signer } from "@solana/web3.js";
+import { AccountLayout, createAssociatedTokenAccountInstruction, createInitializeMintInstruction, createMintToInstruction, MintLayout } from "@solana/spl-token";
 import { NftPawnShop } from "../target/types/nft_pawn_shop"
+import NftPawnShopIdl from "../target/idl/nft_pawn_shop.json";
 import { assert } from "chai"
+
+export const TOKEN_PROGRAM_ID = new PublicKey(
+    "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+);
+
+export const ASSOCIATED_TOKEN_PROGRAM_ID = new PublicKey(
+    "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"
+);
+
+const get3Sol = async (provider: Provider, wallet: PublicKey) => {
+    const tx = await provider.connection.requestAirdrop(
+        wallet,
+        anchor.web3.LAMPORTS_PER_SOL * 3
+    );
+
+    const latestBlockHash = await provider.connection.getLatestBlockhash();
+
+    await provider.connection.confirmTransaction({
+        blockhash: latestBlockHash.blockhash,
+        lastValidBlockHeight: latestBlockHash.lastValidBlockHeight,
+        signature: tx
+    })
+}
+
+const getOrderPda = async (lender: PublicKey, tokenMint: PublicKey) => {
+    return PublicKey.findProgramAddressSync(
+        [Buffer.from("order"), lender.toBuffer(), tokenMint.toBuffer()],
+        new PublicKey(NftPawnShopIdl.metadata.address),
+    )
+}
+
+const getPawnedNftPda = async (pawnBroker: PublicKey, tokenMint: PublicKey) => {
+    return PublicKey.findProgramAddressSync(
+        [Buffer.from("pawned_nft"), pawnBroker.toBuffer(), tokenMint.toBuffer()],
+        new PublicKey(NftPawnShopIdl.metadata.address),
+    )
+}
+
+
+export const getAtaForMint = (tokenRecipient: PublicKey, mintKey: PublicKey): [PublicKey, number] => {
+    return PublicKey.findProgramAddressSync(
+        [tokenRecipient.toBuffer(), TOKEN_PROGRAM_ID.toBuffer(), mintKey.toBuffer()],
+        ASSOCIATED_TOKEN_PROGRAM_ID
+    )
+}
+
+
+export const mintNFT = async (
+    provider: Provider,
+    payer: Keypair,
+    mintAuthority: Keypair,
+    freezeAuthority: Keypair
+) => {
+    const tokenMintKeypair = Keypair.generate()
+
+    const lamportsForMint =
+        await provider.connection.getMinimumBalanceForRentExemption(
+            MintLayout.span
+        )
+
+    const createMintAccountInstruction = anchor.web3.SystemProgram.createAccount({
+        programId: TOKEN_PROGRAM_ID,
+        space: MintLayout.span,
+        fromPubkey: payer.publicKey,
+        newAccountPubkey: tokenMintKeypair.publicKey,
+        lamports: lamportsForMint,
+    })
+
+    const mintInstruction = createInitializeMintInstruction(
+        tokenMintKeypair.publicKey,
+        0,
+        mintAuthority.publicKey,
+        freezeAuthority.publicKey
+    )
+
+    const [payerAta, _] = getAtaForMint(
+        payer.publicKey,
+        tokenMintKeypair.publicKey
+    )
+
+    const stakerAtaInstruction = createAssociatedTokenAccountInstruction(
+        payer.publicKey,
+        payerAta,
+        payer.publicKey,
+        tokenMintKeypair.publicKey
+    )
+
+    const mintToInstruction = createMintToInstruction(
+        tokenMintKeypair.publicKey,
+        payerAta,
+        payer.publicKey,
+        1,
+        []
+    )
+
+    const txWithSigners: {
+        tx: Transaction
+        signers?: Signer[]
+    }[] = []
+
+    const transaction1 = new Transaction();
+    transaction1.add(createMintAccountInstruction);
+    transaction1.add(mintInstruction);
+    transaction1.add(stakerAtaInstruction);
+    transaction1.add(mintToInstruction);
+
+    txWithSigners.push({
+        tx: transaction1,
+        signers: [payer, tokenMintKeypair],
+    })
+
+    await provider.sendAll!(txWithSigners)
+
+    return {
+        payerAta: payerAta,
+        tokenMint: tokenMintKeypair.publicKey,
+    }
+}
+
+export const getRawTokenAccount = async (provider: Provider, address: PublicKey) => {
+    const account = await provider.connection.getAccountInfo(address)
+    if (account == null) {
+        return account
+    }
+    return AccountLayout.decode(account.data)
+}
 
 describe("nft-pawn-shop", () => {
     const connection = new anchor.web3.Connection('http://127.0.0.1:8899')
 
-    const program = anchor.workspace.NftPawnShop as anchor.Program<NftPawnShop>;
+    const program = anchor.workspace.NftPawnShop as Program<NftPawnShop>;
 
     const createUser = async () => {
         const keypair = anchor.web3.Keypair.generate();

@@ -558,240 +558,95 @@ describe("nft-pawn-shop", () => {
         }
     })
 
+    it('cannot seize nft if pawn broker is not right', async () => {
+        const lender = Keypair.generate()
+        await get3Sol(provider, lender.publicKey)
+
+        const { payerAta: lenderAta, tokenMint } = await mintNFT(provider, lender, lender, lender)
+
+        const duration = new BN(-1)
+        const lendAmount = new BN(0.1 * LAMPORTS_PER_SOL)
+        const debtAmount = new BN(0.2 * LAMPORTS_PER_SOL)
+
+        const orderPda = await getOrderPda(lender.publicKey, tokenMint, program.programId)
+        const orderPdaAta = await getAssociatedTokenAddress(tokenMint, orderPda, true);
+
+        await program.methods
+            .placeOrder(duration, lendAmount, debtAmount)
+            .accounts({
+                associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
+                mint: tokenMint,
+                order: orderPda,
+                orderPdaNftAccount: orderPdaAta,
+                signer: lender.publicKey,
+                tokenProgram: TOKEN_PROGRAM_ID,
+                lenderNftAccount: lenderAta,
+            })
+            .signers([lender])
+            .rpc()
+
+        const order = await program.account.order.fetch(orderPda)
+
+        assert(order.debtAmount.eq(debtAmount), 'debt amount is not right')
+        assert(order.duration.eq(duration), 'duration is not right')
+        assert(order.lendAmount.eq(lendAmount), 'lend amount is not right')
+        assert(order.lender.equals(lender.publicKey), 'lender is not right')
+        assert(order.mint.equals(tokenMint), 'mint address is not right')
 
 
+        const pawnBroker = Keypair.generate()
+        const pawnBrokerAta = await getAssociatedTokenAddress(tokenMint, pawnBroker.publicKey)
+        await get3Sol(provider, pawnBroker.publicKey)
 
-    // it("All tests are passed", async () => {
-    //     // create a user
-    //     const [user1, user2, user3] = await Promise.all([
-    //         createUser(),
-    //         createUser(),
-    //         createUser(),
-    //     ])
+        const pawnedNftPda = await getPawnedNftPda(pawnBroker.publicKey, tokenMint, program.programId)
+        const pawnedNftPdaAta = await getAssociatedTokenAddress(tokenMint, pawnedNftPda, true);
 
-    //     // request demo assets
-    //     await program.methods.getDemoAssets()
-    //         .accounts({
-    //             pawnShopUser: user1.pda,
-    //             signer: user1.keypair.publicKey
-    //         }).signers([user1.keypair])
-    //         .rpc()
+        await program.methods
+            .executeOrder()
+            .accounts({
+                associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
+                lender: lender.publicKey,
+                mint: tokenMint,
+                order: orderPda,
+                orderPdaNftAccount: orderPdaAta,
+                pawnedNft: pawnedNftPda,
+                pawnedNftPdaNftAccount: pawnedNftPdaAta,
+                signer: pawnBroker.publicKey,
+                tokenProgram: TOKEN_PROGRAM_ID,
+            })
+            .signers([pawnBroker])
+            .rpc()
 
-    //     const { demoNfts, demoTokens } = await program.account.pawnShopUser.fetch(user1.pda)
-    //     assert.deepEqual(demoNfts, 1, 'Demo NFTs count is not equal to 1')
-    //     assert.deepEqual(demoTokens, 100, 'Demo tokens count is not equal to 100')
+        const pawnedNft = await program.account.pawnedNft.fetch(pawnedNftPda)
 
-    //     await program.methods.getDemoAssets()
-    //         .accounts({
-    //             pawnShopUser: user2.pda,
-    //             signer: user2.keypair.publicKey
-    //         }).signers([user2.keypair])
-    //         .rpc()
+        assert(pawnedNft.debtAmount.eq(debtAmount), 'debt amount is not right')
+        assert(pawnedNft.lender.equals(lender.publicKey), 'lender is not right')
+        assert(pawnedNft.mint.equals(tokenMint), 'mint address is not right')
+        assert(pawnedNft.pawnBroker.equals(pawnBroker.publicKey), 'pawn broker is not right')
 
-    //     await program.methods.getDemoAssets()
-    //         .accounts({
-    //             pawnShopUser: user3.pda,
-    //             signer: user3.keypair.publicKey
-    //         }).signers([user3.keypair])
-    //         .rpc()
+        const frauder = Keypair.generate()
+        const frauderAta = await getAssociatedTokenAddress(tokenMint, frauder.publicKey)
+        await get3Sol(provider, frauder.publicKey)
 
-
-
-    //     const duration = new anchor.BN(1000 * 60 * 60) // 1hour
-    //     const borrowAmount = 10
-    //     const debtAmount = 11
-
-    //     await program.methods.placeOrder(duration, borrowAmount, debtAmount)
-    //         .accounts({
-    //             borrower: user1.pda,
-    //             signer: user1.keypair.publicKey
-    //         })
-    //         .signers([user1.keypair])
-    //         .rpc()
-
-    //     let res = await program.account.pawnShopUser.fetch(user1.pda)
-    //     assert(res.orders[0].some.duration.eq(duration), 'Duration is not equal to 1 hour')
-    //     assert.deepEqual(res.orders[0].some.borrowAmount, borrowAmount, 'Borrow amount is not equal to 10')
-    //     assert.deepEqual(res.orders[0].some.debtAmount, debtAmount, 'Debt amount is not equal to 11')
-
-
-
-
-
-
-    //     await program.methods.cancelOrder(0)
-    //         .accounts({
-    //             borrower: user1.pda,
-    //             signer: user1.keypair.publicKey
-    //         })
-    //         .signers([user1.keypair])
-    //         .rpc()
-
-    //     res = await program.account.pawnShopUser.fetch(user1.pda)
-    //     assert(res.orders[0].none, 'Order is not cancelled')
-
-
-
-
-    //     await program.methods.placeOrder(duration, borrowAmount, debtAmount)
-    //         .accounts({
-    //             borrower: user1.pda,
-    //             signer: user1.keypair.publicKey
-    //         })
-    //         .signers([user1.keypair])
-    //         .rpc()
-    //     res = await program.account.pawnShopUser.fetch(user1.pda)
-    //     assert.deepEqual(res.demoNfts, 0, 'NFT is not locked')
-
-
-    //     try {
-    //         await program.methods.cancelOrder(1)
-    //             .accounts({
-    //                 borrower: user1.pda,
-    //                 signer: user3.keypair.publicKey
-    //             })
-    //             .signers([user3.keypair])
-    //             .rpc()
-    //     } catch (error) {
-    //         assert.deepEqual(
-    //             error.error.errorMessage,
-    //             'You do not have access to complete this operation.'
-    //         )
-    //     }
-
-
-    //     await program.methods.executeOrder(1)
-    //         .accounts({
-    //             borrower: user1.pda,
-    //             lender: user2.pda,
-    //             signer: user2.keypair.publicKey
-    //         })
-    //         .signers([user2.keypair])
-    //         .rpc()
-    //     res = await program.account.pawnShopUser.fetch(user1.pda)
-    //     assert(res.debts[0].some, 'Order is not executed')
-    //     assert.deepEqual(res.demoTokens, 110, 'Demo tokens amount is not equal to 110')
-    //     res = await program.account.pawnShopUser.fetch(user2.pda)
-    //     assert.deepEqual(res.demoTokens, 90, 'Demo tokens amount is not equal to 90')
-
-
-    //     await program.methods.payDebt(0)
-    //         .accounts({
-    //             borrower: user1.pda,
-    //             lender: user2.pda,
-    //             signer: user1.keypair.publicKey
-    //         })
-    //         .signers([user1.keypair])
-    //         .rpc()
-    //     res = await program.account.pawnShopUser.fetch(user1.pda)
-    //     assert(res.debts[0].none, 'Debt is not paid')
-    //     assert.deepEqual(res.demoTokens, 99, 'Demo tokens amount is not equal to 99')
-    //     res = await program.account.pawnShopUser.fetch(user2.pda)
-    //     assert.deepEqual(res.demoTokens, 101, 'Demo tokens amount is not equal to 101')
-
-
-
-    //     await program.methods.placeOrder(duration/*1 hour*/, borrowAmount, debtAmount)
-    //         .accounts({
-    //             borrower: user1.pda,
-    //             signer: user1.keypair.publicKey
-    //         })
-    //         .signers([user1.keypair])
-    //         .rpc()
-
-    //     await program.methods.executeOrder(2)
-    //         .accounts({
-    //             borrower: user1.pda,
-    //             lender: user2.pda,
-    //             signer: user2.keypair.publicKey
-    //         })
-    //         .signers([user2.keypair])
-    //         .rpc()
-
-    //     // debt payment deadline is not over so lender cannot seize the nft
-    //     try {
-    //         await program.methods.seize(1)
-    //             .accounts({
-    //                 borrower: user1.pda,
-    //                 lender: user2.pda,
-    //                 signer: user2.keypair.publicKey
-    //             })
-    //             .signers([user2.keypair])
-    //             .rpc()
-    //     } catch (error) {
-    //         assert.deepEqual(
-    //             error.error.errorMessage,
-    //             'Debt payment deadline is not over.'
-    //         )
-    //     }
-
-
-
-
-    //     await program.methods.payDebt(1)
-    //         .accounts({
-    //             borrower: user1.pda,
-    //             lender: user2.pda,
-    //             signer: user1.keypair.publicKey
-    //         })
-    //         .signers([user1.keypair])
-    //         .rpc()
-
-
-
-    //     await program.methods.placeOrder(new anchor.BN(0)/* 0 milliseconds */, borrowAmount, debtAmount)
-    //         .accounts({
-    //             borrower: user1.pda,
-    //             signer: user1.keypair.publicKey
-    //         })
-    //         .signers([user1.keypair])
-    //         .rpc()
-
-    //     await program.methods.executeOrder(3)
-    //         .accounts({
-    //             borrower: user1.pda,
-    //             lender: user2.pda,
-    //             signer: user2.keypair.publicKey
-    //         })
-    //         .signers([user2.keypair])
-    //         .rpc()
-
-
-    //     // borrower cannot pay off the debt in 0ms, so lender can seize the nft
-    //     // however only lender can seize the nft
-    //     try {
-    //         await program.methods.seize(2)
-    //             .accounts({
-    //                 borrower: user1.pda,
-    //                 lender: user3.pda,
-    //                 signer: user3.keypair.publicKey
-    //             })
-    //             .signers([user3.keypair])
-    //             .rpc()
-    //     } catch (error) {
-    //         assert.deepEqual(
-    //             error.error.errorMessage,
-    //             'Specifed lender is not the expected lender.'
-    //         )
-    //     }
-
-    //     // borrower cannot pay off the debt in 0ms, so lender can seize the nft
-
-    //     await program.methods.seize(2)
-    //         .accounts({
-    //             borrower: user1.pda,
-    //             lender: user2.pda,
-    //             signer: user2.keypair.publicKey
-    //         })
-    //         .signers([user2.keypair])
-    //         .rpc()
-    //     res = await program.account.pawnShopUser.fetch(user1.pda)
-    //     assert.deepEqual(res.demoNfts, 0, 'NFT is not seized')
-    //     assert.deepEqual(res.demoTokens, 108, 'money is seized')
-    //     res = await program.account.pawnShopUser.fetch(user2.pda)
-    //     assert.deepEqual(res.demoNfts, 2, 'NFT is not seized')
-    //     assert.deepEqual(res.demoTokens, 92, 'money is seized')
-    // })
+        try {
+            await program.methods
+                .seizeNft()
+                .accounts({
+                    associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
+                    lender: lender.publicKey,
+                    mint: tokenMint,
+                    pawnBrokerNftAccount: frauderAta,
+                    pawnedNft: pawnedNftPda,
+                    pawnedNftPdaNftAccount: pawnedNftPdaAta,
+                    signer: frauder.publicKey,
+                    tokenProgram: TOKEN_PROGRAM_ID
+                })
+                .signers([frauder])
+                .rpc()
+        } catch ({ error }) {
+            assert.equal(error.errorCode.code, 'ConstraintSeeds')
+        }
+    })
 })
 
 

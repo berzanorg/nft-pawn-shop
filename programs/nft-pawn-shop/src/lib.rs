@@ -113,7 +113,7 @@ pub mod nft_pawn_shop {
         
         let transfer = Transfer {
             from: ctx.accounts.pawned_nft_pda_nft_account.to_account_info(),
-            to: ctx.accounts.signer.to_account_info(),
+            to: ctx.accounts.lender_nft_account.to_account_info(),
             authority: ctx.accounts.pawned_nft.to_account_info(),
         };
 
@@ -160,7 +160,7 @@ pub mod nft_pawn_shop {
         
         let transfer = Transfer {
             from: ctx.accounts.pawned_nft_pda_nft_account.to_account_info(),
-            to: ctx.accounts.signer.to_account_info(),
+            to: ctx.accounts.pawn_broker_nft_account.to_account_info(),
             authority: ctx.accounts.pawned_nft.to_account_info(),
         };
 
@@ -287,6 +287,12 @@ pub struct PayDebt<'info> {
     )]
     pub pawned_nft_pda_nft_account: Account<'info, TokenAccount>,
 
+    #[account(
+        mut,
+        constraint = lender_nft_account.owner.key() == signer.key(),
+    )]
+    pub lender_nft_account: Account<'info, TokenAccount>,
+
     /// CHECK: It is just a user account.
     #[account(mut)]
     pub pawn_broker: AccountInfo<'info>,
@@ -323,6 +329,13 @@ pub struct SeizeNFT<'info> {
     )]
     pub pawned_nft_pda_nft_account: Account<'info, TokenAccount>,
 
+    #[account(
+        init_if_needed,
+        payer = signer, 
+        associated_token::mint = mint, 
+        associated_token::authority = signer,
+    )]
+    pub pawn_broker_nft_account: Account<'info, TokenAccount>,
     
     /// CHECK: It is just a user account.
     #[account(mut)]

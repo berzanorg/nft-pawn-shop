@@ -125,7 +125,7 @@ describe("nft-pawn-shop", () => {
         const lender = Keypair.generate()
         await get3Sol(provider, lender.publicKey)
 
-        const { payerAta, tokenMint } = await mintNFT(provider, lender, lender, lender)
+        const { payerAta: lenderAta, tokenMint } = await mintNFT(provider, lender, lender, lender)
 
         const duration = new BN(4 * 60 * 60)
         const lendAmount = new BN(0.1 * LAMPORTS_PER_SOL)
@@ -143,7 +143,7 @@ describe("nft-pawn-shop", () => {
                 orderPdaNftAccount: orderPdaAta,
                 signer: lender.publicKey,
                 tokenProgram: TOKEN_PROGRAM_ID,
-                userNftAccount: payerAta,
+                lenderNftAccount: lenderAta,
             })
             .signers([lender])
             .rpc();
@@ -161,7 +161,7 @@ describe("nft-pawn-shop", () => {
         const lender = Keypair.generate()
         await get3Sol(provider, lender.publicKey)
 
-        const { payerAta, tokenMint } = await mintNFT(provider, lender, lender, lender)
+        const { payerAta: lenderAta, tokenMint } = await mintNFT(provider, lender, lender, lender)
 
         const duration = new BN(4 * 60 * 60)
         const lendAmount = new BN(0.1 * LAMPORTS_PER_SOL)
@@ -179,7 +179,7 @@ describe("nft-pawn-shop", () => {
                 orderPdaNftAccount: orderPdaAta,
                 signer: lender.publicKey,
                 tokenProgram: TOKEN_PROGRAM_ID,
-                userNftAccount: payerAta,
+                lenderNftAccount: lenderAta,
             })
             .signers([lender])
             .rpc()
@@ -222,6 +222,89 @@ describe("nft-pawn-shop", () => {
         assert(pawnedNft.mint.equals(tokenMint), 'mint address is not right')
         assert(pawnedNft.pawnBroker.equals(pawnBroker.publicKey), 'pawn broker is not right')
     })
+
+
+    it('can pay debt', async () => {
+        const lender = Keypair.generate()
+        await get3Sol(provider, lender.publicKey)
+
+        const { payerAta: lenderAta, tokenMint } = await mintNFT(provider, lender, lender, lender)
+
+        const duration = new BN(4 * 60 * 60)
+        const lendAmount = new BN(0.1 * LAMPORTS_PER_SOL)
+        const debtAmount = new BN(0.2 * LAMPORTS_PER_SOL)
+
+        const orderPda = await getOrderPda(lender.publicKey, tokenMint, program.programId)
+        const orderPdaAta = await getAssociatedTokenAddress(tokenMint, orderPda, true);
+
+        await program.methods
+            .placeOrder(duration, lendAmount, debtAmount)
+            .accounts({
+                associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
+                mint: tokenMint,
+                order: orderPda,
+                orderPdaNftAccount: orderPdaAta,
+                signer: lender.publicKey,
+                tokenProgram: TOKEN_PROGRAM_ID,
+                lenderNftAccount: lenderAta,
+            })
+            .signers([lender])
+            .rpc()
+
+        const order = await program.account.order.fetch(orderPda)
+
+        assert(order.debtAmount.eq(debtAmount), 'debt amount is not right')
+        assert(order.duration.eq(duration), 'duration is not right')
+        assert(order.lendAmount.eq(lendAmount), 'lend amount is not right')
+        assert(order.lender.equals(lender.publicKey), 'lender is not right')
+        assert(order.mint.equals(tokenMint), 'mint address is not right')
+
+
+        const pawnBroker = Keypair.generate()
+        await get3Sol(provider, pawnBroker.publicKey)
+
+        const pawnedNftPda = await getPawnedNftPda(pawnBroker.publicKey, tokenMint, program.programId)
+        const pawnedNftPdaAta = await getAssociatedTokenAddress(tokenMint, pawnedNftPda, true);
+
+        await program.methods
+            .executeOrder()
+            .accounts({
+                associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
+                lender: lender.publicKey,
+                mint: tokenMint,
+                order: orderPda,
+                orderPdaNftAccount: orderPdaAta,
+                pawnedNft: pawnedNftPda,
+                pawnedNftPdaNftAccount: pawnedNftPdaAta,
+                signer: pawnBroker.publicKey,
+                tokenProgram: TOKEN_PROGRAM_ID,
+            })
+            .signers([pawnBroker])
+            .rpc()
+
+        const pawnedNft = await program.account.pawnedNft.fetch(pawnedNftPda)
+
+        assert(pawnedNft.debtAmount.eq(debtAmount), 'debt amount is not right')
+        assert(pawnedNft.lender.equals(lender.publicKey), 'lender is not right')
+        assert(pawnedNft.mint.equals(tokenMint), 'mint address is not right')
+        assert(pawnedNft.pawnBroker.equals(pawnBroker.publicKey), 'pawn broker is not right')
+
+        await program.methods
+            .payDebt()
+            .accounts({
+                associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
+                mint: tokenMint,
+                pawnBroker: pawnBroker.publicKey,
+                pawnedNft: pawnedNftPda,
+                pawnedNftPdaNftAccount: pawnedNftPdaAta,
+                signer: lender.publicKey,
+                lenderNftAccount: lenderAta,
+                tokenProgram: TOKEN_PROGRAM_ID,
+            })
+            .signers([lender])
+            .rpc()
+    })
+
 
 
 

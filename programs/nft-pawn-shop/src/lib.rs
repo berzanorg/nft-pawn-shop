@@ -1,4 +1,3 @@
-use anchor_lang::solana_program;
 use anchor_lang::prelude::*;
 use anchor_spl::associated_token::AssociatedToken;
 use anchor_spl::token::{self, Mint, Token, TokenAccount, Transfer};
@@ -186,7 +185,7 @@ pub struct PlaceOrder<'info> {
         seeds=[b"order", signer.key().as_ref(), mint.key().as_ref()],
         bump,
         payer = signer, 
-        space = Order::INIT_SPACE,
+        space = Order::INIT_SPACE + 8,
     )]
     pub order: Account<'info, Order>,
 
@@ -224,7 +223,7 @@ pub struct ExecuteOrder<'info> {
         seeds=[b"pawned_nft", signer.key().as_ref(), mint.key().as_ref()],
         bump,
         payer = signer, 
-        space = PawnedNFT::INIT_SPACE,
+        space = PawnedNFT::INIT_SPACE + 8,
     )]
     pub pawned_nft: Account<'info, PawnedNFT>,
 
@@ -253,6 +252,7 @@ pub struct ExecuteOrder<'info> {
     )]
     pub order_pda_nft_account: Account<'info, TokenAccount>,
 
+    /// CHECK: It is just a user account.
     #[account(mut)]
     pub lender: AccountInfo<'info>,
 
@@ -287,6 +287,7 @@ pub struct PayDebt<'info> {
     )]
     pub pawned_nft_pda_nft_account: Account<'info, TokenAccount>,
 
+    /// CHECK: It is just a user account.
     #[account(mut)]
     pub pawn_broker: AccountInfo<'info>,
 
@@ -322,6 +323,8 @@ pub struct SeizeNFT<'info> {
     )]
     pub pawned_nft_pda_nft_account: Account<'info, TokenAccount>,
 
+    
+    /// CHECK: It is just a user account.
     #[account(mut)]
     pub lender: AccountInfo<'info>,
 

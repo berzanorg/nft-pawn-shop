@@ -478,7 +478,7 @@ describe("nft-pawn-shop", () => {
 
         const { payerAta: lenderAta, tokenMint } = await mintNFT(provider, lender, lender, lender)
 
-        const duration = new BN(-1)
+        const duration = new BN(4 * 60 * 60)
         const lendAmount = new BN(0.1 * LAMPORTS_PER_SOL)
         const debtAmount = new BN(0.2 * LAMPORTS_PER_SOL)
 

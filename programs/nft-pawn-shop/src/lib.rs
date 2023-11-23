@@ -19,7 +19,7 @@ pub mod nft_pawn_shop {
         let cpi_program = ctx.accounts.token_program.to_account_info();
         
         let transfer = Transfer {
-            from: ctx.accounts.user_nft_account.to_account_info(),
+            from: ctx.accounts.lender_nft_account.to_account_info(),
             to: ctx.accounts.order_pda_nft_account.to_account_info(),
             authority: ctx.accounts.signer.to_account_info(),
         };
@@ -191,10 +191,10 @@ pub struct PlaceOrder<'info> {
 
     #[account(
         mut,
-        constraint = user_nft_account.owner.key() == signer.key(),
-        constraint = user_nft_account.amount == 1 
+        constraint = lender_nft_account.owner.key() == signer.key(),
+        constraint = lender_nft_account.amount == 1 
     )]
-    pub user_nft_account: Account<'info, TokenAccount>,
+    pub lender_nft_account: Account<'info, TokenAccount>,
 
     #[account(
         init_if_needed,

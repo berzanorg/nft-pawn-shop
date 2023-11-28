@@ -1,17 +1,13 @@
 import { useWallet } from "@solana/wallet-adapter-react"
 import { WalletModalButton } from "@solana/wallet-adapter-react-ui"
-import { IconMoney } from "./IconMoney"
-import { useEffect } from "react"
 import { IconShop } from "./IconShop"
 import { IconProfile } from "./IconProfile"
 import Link from "next/link"
 import { useRouter } from "next/router"
-import { useDapp } from "@/contexts/DappProvider"
 
 export const Navbar = () => {
-    const { connected } = useWallet()
+    const { connected, disconnect } = useWallet()
     const { pathname } = useRouter()
-    const { demoTokensBalance } = useDapp()
 
     return (
         <header className="sticky top-0 z-30 flex items-center justify-between h-16 px-4 border-b xl:px-12 bg-gradient-to-bl from-slate-900 to-indigo-950 border-slate-700">
@@ -27,9 +23,12 @@ export const Navbar = () => {
 
             <div className="flex justify-end md:w-40">
                 {connected ? (
-                    <div className="flex items-center gap-1.5 text-lg font-semibold cursor-default">
-                        <IconMoney /> {demoTokensBalance}
-                    </div>
+                    <button
+                    onClick={disconnect} 
+                    className="px-5 text-lg font-semibold duration-200 h-10 bg-indigo-500 hover:bg-indigo-400 rounded-2xl hover:scale-95 active:scale-90"
+                    >
+                        Disconnect
+                    </button>
                 ) : <WalletModalButton />}
             </div>
         </header>

@@ -2,7 +2,7 @@
 seeds = false
 skip-lint = false
 [programs.localnet]
-nft_pawn_shop = "52sADXgNGPisU3pAtfHZhJ6j7s9j48rs4Pin4JMbF2W9"
+nft_pawn_shop = "CaCpQaHiHgymut7cP9Jj7UkJXZh25fTdZftLeycWuGPV"
 
 [registry]
 url = "https://api.apr.dev"

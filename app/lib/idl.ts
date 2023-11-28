@@ -1,339 +1,575 @@
 export type NftPawnShop = {
-    "version": "0.1.0",
-    "name": "nft_pawn_shop",
-    "instructions": [
+  "version": "0.1.0",
+  "name": "nft_pawn_shop",
+  "instructions": [
+    {
+      "name": "placeOrder",
+      "accounts": [
         {
-            "name": "getDemoAssets",
-            "accounts": [
-                {
-                    "name": "pawnShopUser",
-                    "isMut": true,
-                    "isSigner": false
-                },
-                {
-                    "name": "signer",
-                    "isMut": true,
-                    "isSigner": true
-                },
-                {
-                    "name": "systemProgram",
-                    "isMut": false,
-                    "isSigner": false
-                }
-            ],
-            "args": []
+          "name": "order",
+          "isMut": true,
+          "isSigner": false
         },
         {
-            "name": "placeOrder",
-            "accounts": [
-                {
-                    "name": "borrower",
-                    "isMut": true,
-                    "isSigner": false
-                },
-                {
-                    "name": "signer",
-                    "isMut": true,
-                    "isSigner": true
-                }
-            ],
-            "args": [
-                {
-                    "name": "duration",
-                    "type": "u64"
-                },
-                {
-                    "name": "borrowAmount",
-                    "type": "u16"
-                },
-                {
-                    "name": "debtAmount",
-                    "type": "u16"
-                }
-            ]
+          "name": "customerNftAccount",
+          "isMut": true,
+          "isSigner": false
         },
         {
-            "name": "cancelOrder",
-            "accounts": [
-                {
-                    "name": "borrower",
-                    "isMut": true,
-                    "isSigner": false
-                },
-                {
-                    "name": "signer",
-                    "isMut": true,
-                    "isSigner": true
-                }
-            ],
-            "args": [
-                {
-                    "name": "orderIndex",
-                    "type": "u32"
-                }
-            ]
+          "name": "orderPdaNftAccount",
+          "isMut": true,
+          "isSigner": false
         },
         {
-            "name": "executeOrder",
-            "accounts": [
-                {
-                    "name": "lender",
-                    "isMut": true,
-                    "isSigner": false
-                },
-                {
-                    "name": "borrower",
-                    "isMut": true,
-                    "isSigner": false
-                },
-                {
-                    "name": "signer",
-                    "isMut": true,
-                    "isSigner": true
-                }
-            ],
-            "args": [
-                {
-                    "name": "orderIndex",
-                    "type": "u32"
-                }
-            ]
+          "name": "mint",
+          "isMut": false,
+          "isSigner": false
         },
         {
-            "name": "payDebt",
-            "accounts": [
-                {
-                    "name": "lender",
-                    "isMut": true,
-                    "isSigner": false
-                },
-                {
-                    "name": "borrower",
-                    "isMut": true,
-                    "isSigner": false
-                },
-                {
-                    "name": "signer",
-                    "isMut": true,
-                    "isSigner": true
-                }
-            ],
-            "args": [
-                {
-                    "name": "debtIndex",
-                    "type": "u32"
-                }
-            ]
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
         },
         {
-            "name": "seize",
-            "accounts": [
-                {
-                    "name": "lender",
-                    "isMut": true,
-                    "isSigner": false
-                },
-                {
-                    "name": "borrower",
-                    "isMut": true,
-                    "isSigner": false
-                },
-                {
-                    "name": "signer",
-                    "isMut": true,
-                    "isSigner": true
-                }
-            ],
-            "args": [
-                {
-                    "name": "debtIndex",
-                    "type": "u32"
-                }
-            ]
+          "name": "associatedTokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "signer",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
         }
-    ],
-    "accounts": [
+      ],
+      "args": [
         {
-            "name": "pawnShopUser",
-            "docs": [
-                "It represents an account that uses NFT Pawn Shop."
-            ],
+          "name": "duration",
+          "type": "i64"
+        },
+        {
+          "name": "borrowAmount",
+          "type": "u64"
+        },
+        {
+          "name": "debtAmount",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "executeOrder",
+      "accounts": [
+        {
+          "name": "order",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "orderPdaNftAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "customer",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "mint",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "associatedTokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "signer",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "payDebt",
+      "accounts": [
+        {
+          "name": "order",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "orderPdaNftAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "customerNftAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "pawnBroker",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "mint",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "associatedTokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "signer",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "seizeNft",
+      "accounts": [
+        {
+          "name": "order",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "orderPdaNftAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "pawnBrokerNftAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "customer",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "mint",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "associatedTokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "signer",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": []
+    }
+  ],
+  "accounts": [
+    {
+      "name": "order",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "customer",
+            "type": "publicKey"
+          },
+          {
+            "name": "mint",
+            "type": "publicKey"
+          },
+          {
+            "name": "duration",
+            "type": "i64"
+          },
+          {
+            "name": "borrowAmount",
+            "type": "u64"
+          },
+          {
+            "name": "debtAmount",
+            "type": "u64"
+          },
+          {
+            "name": "pawnBroker",
             "type": {
-                "kind": "struct",
-                "fields": [
-                    {
-                        "name": "owner",
-                        "docs": [
-                            "Owner of this PDA."
-                        ],
-                        "type": "publicKey"
-                    },
-                    {
-                        "name": "demoTokens",
-                        "docs": [
-                            "Amount of demo tokens this user owns."
-                        ],
-                        "type": "u16"
-                    },
-                    {
-                        "name": "demoNfts",
-                        "docs": [
-                            "Amount of demo NFTs this user owns."
-                        ],
-                        "type": "u16"
-                    },
-                    {
-                        "name": "orders",
-                        "docs": [
-                            "Orders this user gave."
-                        ],
-                        "type": {
-                            "vec": {
-                                "defined": "Order"
-                            }
-                        }
-                    },
-                    {
-                        "name": "debts",
-                        "docs": [
-                            "Debts this user have."
-                        ],
-                        "type": {
-                            "vec": {
-                                "defined": "Debt"
-                            }
-                        }
-                    }
-                ]
+              "option": "publicKey"
             }
-        }
-    ],
-    "types": [
-        {
-            "name": "Order",
-            "docs": [
-                "An `Order` is stored inside the account giving the order.",
-                "",
-                "It represents a request to borrow money."
-            ],
+          },
+          {
+            "name": "deadline",
             "type": {
-                "kind": "enum",
-                "variants": [
-                    {
-                        "name": "Some",
-                        "fields": [
-                            {
-                                "name": "borrow_amount",
-                                "docs": [
-                                    "Amount of demo tokens to be borrowed."
-                                ],
-                                "type": "u16"
-                            },
-                            {
-                                "name": "debt_amount",
-                                "docs": [
-                                    "Amount of debt to be repaid."
-                                ],
-                                "type": "u16"
-                            },
-                            {
-                                "name": "duration",
-                                "docs": [
-                                    "Duration of the debt."
-                                ],
-                                "type": "u64"
-                            }
-                        ]
-                    },
-                    {
-                        "name": "None"
-                    }
-                ]
+              "option": "i64"
             }
+          }
+        ]
+      }
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "NotEnoughBalance",
+      "msg": "You don't have enough SOL balance."
+    },
+    {
+      "code": 6001,
+      "name": "DebtDeadlineIsDone",
+      "msg": "Debt payment deadline is done."
+    },
+    {
+      "code": 6002,
+      "name": "DebtDeadlineIsNotDone",
+      "msg": "Debt payment deadline is not done."
+    },
+    {
+      "code": 6003,
+      "name": "OrderIsAlreadyExecuted",
+      "msg": "Order is already executed."
+    },
+    {
+      "code": 6004,
+      "name": "OrderIsNotExecutedYet",
+      "msg": "Order is not executed yet."
+    },
+    {
+      "code": 6005,
+      "name": "OrderIsDone",
+      "msg": "Order is done."
+    }
+  ]
+};
+
+export const IDL: NftPawnShop = {
+  "version": "0.1.0",
+  "name": "nft_pawn_shop",
+  "instructions": [
+    {
+      "name": "placeOrder",
+      "accounts": [
+        {
+          "name": "order",
+          "isMut": true,
+          "isSigner": false
         },
         {
-            "name": "Debt",
-            "docs": [
-                "A `Debt` is stored inside the debtor's account.",
-                "",
-                "It represents a debt that may or may not be paid."
-            ],
+          "name": "customerNftAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "orderPdaNftAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "mint",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "associatedTokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "signer",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "duration",
+          "type": "i64"
+        },
+        {
+          "name": "borrowAmount",
+          "type": "u64"
+        },
+        {
+          "name": "debtAmount",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "executeOrder",
+      "accounts": [
+        {
+          "name": "order",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "orderPdaNftAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "customer",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "mint",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "associatedTokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "signer",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "payDebt",
+      "accounts": [
+        {
+          "name": "order",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "orderPdaNftAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "customerNftAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "pawnBroker",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "mint",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "associatedTokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "signer",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "seizeNft",
+      "accounts": [
+        {
+          "name": "order",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "orderPdaNftAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "pawnBrokerNftAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "customer",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "mint",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "associatedTokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "signer",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": []
+    }
+  ],
+  "accounts": [
+    {
+      "name": "order",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "customer",
+            "type": "publicKey"
+          },
+          {
+            "name": "mint",
+            "type": "publicKey"
+          },
+          {
+            "name": "duration",
+            "type": "i64"
+          },
+          {
+            "name": "borrowAmount",
+            "type": "u64"
+          },
+          {
+            "name": "debtAmount",
+            "type": "u64"
+          },
+          {
+            "name": "pawnBroker",
             "type": {
-                "kind": "enum",
-                "variants": [
-                    {
-                        "name": "Some",
-                        "fields": [
-                            {
-                                "name": "amount",
-                                "docs": [
-                                    "Amount of debt to be repaid."
-                                ],
-                                "type": "u16"
-                            },
-                            {
-                                "name": "lender_pda",
-                                "docs": [
-                                    "PDA of the lender."
-                                ],
-                                "type": "publicKey"
-                            },
-                            {
-                                "name": "deadline",
-                                "docs": [
-                                    "Debt payment deadline as timestamp."
-                                ],
-                                "type": "i64"
-                            }
-                        ]
-                    },
-                    {
-                        "name": "None"
-                    }
-                ]
+              "option": "publicKey"
             }
-        }
-    ],
-    "errors": [
-        {
-            "code": 6000,
-            "name": "DebtPaymentDeadlineIsOver",
-            "msg": "Debt payment deadline is over."
-        },
-        {
-            "code": 6001,
-            "name": "DebtPaymentDeadlineIsValid",
-            "msg": "Debt payment deadline is not over."
-        },
-        {
-            "code": 6002,
-            "name": "InsufficientDemoTokens",
-            "msg": "You do not have enough demo tokens."
-        },
-        {
-            "code": 6003,
-            "name": "NoDemoNFT",
-            "msg": "You have no demo NFT."
-        },
-        {
-            "code": 6004,
-            "name": "NoDebtFound",
-            "msg": "No debt found at specified index."
-        },
-        {
-            "code": 6005,
-            "name": "NoOrderFound",
-            "msg": "No order found at specified index."
-        },
-        {
-            "code": 6006,
-            "name": "WrongLender",
-            "msg": "Specifed lender is not the expected lender."
-        },
-        {
-            "code": 6007,
-            "name": "UnauthorizedAccess",
-            "msg": "You do not have access to complete this operation."
-        }
-    ]
+          },
+          {
+            "name": "deadline",
+            "type": {
+              "option": "i64"
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "NotEnoughBalance",
+      "msg": "You don't have enough SOL balance."
+    },
+    {
+      "code": 6001,
+      "name": "DebtDeadlineIsDone",
+      "msg": "Debt payment deadline is done."
+    },
+    {
+      "code": 6002,
+      "name": "DebtDeadlineIsNotDone",
+      "msg": "Debt payment deadline is not done."
+    },
+    {
+      "code": 6003,
+      "name": "OrderIsAlreadyExecuted",
+      "msg": "Order is already executed."
+    },
+    {
+      "code": 6004,
+      "name": "OrderIsNotExecutedYet",
+      "msg": "Order is not executed yet."
+    },
+    {
+      "code": 6005,
+      "name": "OrderIsDone",
+      "msg": "Order is done."
+    }
+  ]
 };

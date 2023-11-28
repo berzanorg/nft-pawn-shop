@@ -1,5 +1,5 @@
 import { LAMPORTS_PER_SOL } from "@solana/web3.js"
-import BN from "bn.js"
+import { BN } from "@coral-xyz/anchor"
 
 export const formatDuration = (sec: number) => {
     const MINUTE = 60

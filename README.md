@@ -2,6 +2,12 @@
 ### What Is NFT Pawn Shop?
 It is a decentralized application & a standard for the entire Solana ecosystem.
 
+> The prototype is first developed for a local Solana hackathon as a team. 
+> <br>
+>  But a production version is developed for [Backdrop](https://backdrop.so/)'s hackathon by me, [Berzan](https://x.com/BerzanXYZ).
+> <br>
+> I'd like to thank my team members for their support.
+
 ### Why Does It Exist?
 It allows NFT owners to borrow money using their NFTs as collateral. <br>
 It allows crypto holders to lend their crypto and earn interest. <br>

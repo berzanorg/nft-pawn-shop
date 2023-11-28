@@ -1,9 +1,9 @@
-import { useDapp } from "@/contexts/DappProvider";
 import { ReactNode } from "react";
 import { LoadingScreen } from "./LoadingScreen";
+import { usePawnShop } from "@/contexts/PawnShopProvider";
 
 export const Main = ({ children }: { children: ReactNode }) => {
-    const { isLoaded } = useDapp()
+    const { isLoaded } = usePawnShop()
 
 
     return (

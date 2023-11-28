@@ -8,4 +8,10 @@ pub enum CustomError {
     DebtDeadlineIsDone,
     #[msg("Debt payment deadline is not done.")]
     DebtDeadlineIsNotDone,
+    #[msg("Order is already executed.")]
+    OrderIsAlreadyExecuted,
+    #[msg("Order is not executed yet.")]
+    OrderIsNotExecutedYet,
+    #[msg("Order is done.")]
+    OrderIsDone,
 }

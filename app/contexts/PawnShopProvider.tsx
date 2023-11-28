@@ -67,9 +67,8 @@ export const PawnShopProvider = ({ children }: { children: React.ReactNode }) =>
 
 
     const orders = useMemo(() => {
-        if (!publicKey) return []
         return allOrders.filter(order => order.deadline === null)
-    }, [allOrders, publicKey])
+    }, [allOrders])
 
     const userOrders = useMemo(() => {
         if (!publicKey) return []
@@ -95,7 +94,6 @@ export const PawnShopProvider = ({ children }: { children: React.ReactNode }) =>
         const metaplex = new Metaplex(connection);
 
         const allOrders = await program.account.order.all()
-        console.log(allOrders)
 
         const promises = allOrders.map(order => async () => {
             const { name, uri } = await metaplex.nfts().findByMint({ mintAddress: order.account.mint })
@@ -119,11 +117,6 @@ export const PawnShopProvider = ({ children }: { children: React.ReactNode }) =>
         const duration = new BN(durationInHours * 60 * 60)
         const borrowAmount = new BN(borrowAmountInSOL * LAMPORTS_PER_SOL)
         const debtAmount = new BN(debtAmountInSOL * LAMPORTS_PER_SOL)
-
-        console.log(borrowAmount)
-        console.log(debtAmount)
-        console.log(borrowAmountInSOL)
-        console.log(debtAmountInSOL)
 
         await program.methods
             .placeOrder(

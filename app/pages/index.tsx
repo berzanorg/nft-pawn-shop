@@ -14,7 +14,7 @@ export default function Home() {
           {orders.length > 0 ? (
             <>
               {orders.filter(order => publicKey?.equals(order.customer)).map((order) => <NFTCard key={order.pda.toString()} kind="userOrder" data={order} />)}
-              {orders.filter(order => !publicKey || publicKey.equals(order.customer)).map((order) => <NFTCard key={order.pda.toString()} kind="order" data={order} />)}
+              {orders.filter(order => !publicKey || !publicKey.equals(order.customer)).map((order) => <NFTCard key={order.pda.toString()} kind="order" data={order} />)}
             </>
           ) : <p className="font-medium text-white/60">No NFTs to be pawned.</p>}
         </div>

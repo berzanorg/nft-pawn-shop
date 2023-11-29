@@ -1,4 +1,4 @@
-# 🏪 NFT Pawn Shop 🏪  [live demo](https://solana-devs.github.io/nft-pawn-shop/)
+# 🏪 NFT Pawn Shop 🏪  [Visit it!](https://nftpawnshop.pages.dev/)
 ### What Is NFT Pawn Shop?
 It is a decentralized application & a standard for the entire Solana ecosystem.
 
